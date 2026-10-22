@@ -1,0 +1,11 @@
+# Notebook and test tools, installed by install.bash after the hash lock and
+# constrained to it, so they cannot upgrade a locked package.
+scipy
+ipympl
+Pillow
+jupyter-dark-detect==0.1.0
+jupyter
+jupyter-server-proxy
+jupyterlab
+jupyterlab-execute-time
+pytest

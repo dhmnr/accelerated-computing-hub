@@ -144,5 +144,3 @@ logs/
 # Nsight Streamer TURN credentials
 .turn-credentials
 
-# HPCCM generated Dockerfiles
-stdpar-tutorial/brev/dockerfile

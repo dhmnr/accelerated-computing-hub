@@ -44,14 +44,14 @@ def test_system_python_environment():
     import numba
     import nsightful
 
-    assert sys.prefix == sys.base_prefix == "/usr"
+    assert sys.prefix == os.environ["VIRTUAL_ENV"] == "/opt/venv"
     assert numba.__version__ == "0.63.1"
     assert llvmlite.__version__ == "0.46.0"
     assert jax.__version__ == "0.11.1"
     assert mpi4py.__version__ == "4.1.2"
     for module in (numba, llvmlite, jax, mpi4py, nsightful):
         module_path = Path(module.__file__).resolve()
-        assert module_path.is_relative_to("/usr"), module_path
+        assert module_path.is_relative_to("/opt/venv"), module_path
     for tool in ("mpirun", "mpiexec", "mpicc", "mpicxx"):
         link = Path(PYHPC_MPI_BIN) / tool
         assert link.is_symlink()

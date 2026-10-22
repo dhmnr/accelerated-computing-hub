@@ -21,3 +21,6 @@ ipykernel
 
 # MPI
 mpi4py
+
+# The C++ exercises need CMake 4, newer than Ubuntu's.
+cmake>=4

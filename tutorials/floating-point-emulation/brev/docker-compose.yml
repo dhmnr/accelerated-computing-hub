@@ -1,10 +1,9 @@
 name: &tutorial-name floating-point-emulation
 
 x-config:
-  dockerfile: &dockerfile tutorials/floating-point-emulation/brev/dockerfile
+  dockerfile: &dockerfile brev/dockerfile
   image: &image ghcr.io/nvidia/floating-point-emulation-tutorial:latest
   working-dir: &working-dir /accelerated-computing-hub/tutorials/floating-point-emulation/notebooks
-  large: &large true
   default-jupyter-url: &default-jupyter-url
   gpu-config: &gpu-config
     privileged: true
@@ -47,6 +46,8 @@ services:
     build:
       context: ../../..
       dockerfile: *dockerfile
+      args:
+        ACH_TUTORIAL: *tutorial-name
     restart: "no"
   jupyter:
     <<: [*gpu-config, *common-service, *persistent-service]
@@ -57,7 +58,7 @@ services:
       - "0.0.0.0:8888:8888" # JupyterLab
   nsight:
     <<: [*gpu-config, *common-service, *persistent-service]
-    image: nvcr.io/nvidia/devtools/nsight-streamer-nsys:2025.3.1
+    image: nvcr.io/nvidia/devtools/nsight-streamer-nsys:2026.1.1
     entrypoint: ["/accelerated-computing-hub/brev/entrypoint.bash", "nsight"]
     ports:
       - "0.0.0.0:8080:8080" # HTTP

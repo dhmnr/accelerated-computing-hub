@@ -47,17 +47,6 @@ build_tutorial() {
         return 0
     fi
 
-    # Check for HPCCM recipe and generate Dockerfile if needed
-    if [ -f "${ACH_TUTORIAL_PATH}/brev/docker-recipe.py" ]; then
-        echo "Found HPCCM recipe, generating Dockerfile..."
-        if ! command -v hpccm &> /dev/null; then
-            echo "Error: hpccm not found. Please install it with: pip install hpccm"
-            exit 1
-        fi
-        hpccm --recipe "${ACH_TUTORIAL_PATH}/brev/docker-recipe.py" --format docker > "${ACH_TUTORIAL_PATH}/brev/dockerfile"
-        echo "Dockerfile generated successfully"
-    fi
-
     compose -f "${ACH_TUTORIAL_PATH}/brev/docker-compose.yml" build ${NO_CACHE}
 
     echo "Successfully built image for ${ACH_TUTORIAL}"

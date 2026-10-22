@@ -1,0 +1,2 @@
+# Newton's verified hash lock. See notebooks/newton/README.md before refreshing it.
+-r ../notebooks/newton/requirements.lock.txt

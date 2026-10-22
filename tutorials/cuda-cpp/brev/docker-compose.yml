@@ -1,7 +1,7 @@
 name: &tutorial-name cuda-cpp
 
 x-config:
-  dockerfile: &dockerfile tutorials/cuda-cpp/brev/dockerfile
+  dockerfile: &dockerfile brev/dockerfile
   image: &image ghcr.io/nvidia/cuda-cpp-tutorial:latest
   working-dir: &working-dir /accelerated-computing-hub/tutorials/cuda-cpp/notebooks
   gpu-config: &gpu-config
@@ -47,6 +47,8 @@ services:
     build:
       context: ../../..
       dockerfile: *dockerfile
+      args:
+        ACH_TUTORIAL: *tutorial-name
     restart: "no"
   jupyter:
     <<: [*gpu-config, *common-service, *persistent-service]
@@ -66,7 +68,7 @@ services:
       - "0.0.0.0:3478:3478" # TURN
   ncu:
     <<: [*gpu-config, *common-service, *persistent-service]
-    image: nvcr.io/nvidia/devtools/nsight-streamer-ncu:2025.4.1
+    image: nvcr.io/nvidia/devtools/nsight-streamer-ncu:2026.2.1
     entrypoint: ["/accelerated-computing-hub/brev/entrypoint.bash", "nsight"]
     environment:
       <<: *common-env

@@ -33,7 +33,6 @@ def gpu_supports_cuda_tile():
 def test_dependency_versions():
     """Critical Python CUDA packages match the resolved CUDA 13.2 stack."""
     expected = {
-        "torch": "2.14.0+cu132",
         "cuda-toolkit": "13.2.1",
         "cuda-core": "1.2.0",
         "cuda-cccl": "1.1.1",
@@ -71,7 +70,7 @@ def test_system_environment():
     import llvmlite
     import numba
 
-    assert sys.prefix == sys.base_prefix == "/usr"
+    assert sys.prefix == os.environ["VIRTUAL_ENV"] == "/opt/venv"
     assert numba.__version__ == "0.63.1"
     assert llvmlite.__version__ == "0.46.0"
     assert jax.__version__ == "0.11.1"
@@ -383,44 +382,6 @@ def test_nvmath():
     result = nvmath.linalg.advanced.matmul(identity, identity)
     assert cp.allclose(result, identity)
 
-
-def test_pytorch():
-    """Test that PyTorch works by performing tensor operations and checking CUDA."""
-    import torch
-
-    # Create tensors and perform operations
-    x = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
-    y = torch.tensor([[5.0, 6.0], [7.0, 8.0]])
-
-    # Matrix multiplication
-    z = torch.matmul(x, y.T)
-
-    # Verify result shape and computation
-    assert z.shape == (2, 2)
-    expected = torch.tensor([[17.0, 23.0], [39.0, 53.0]])
-    assert torch.allclose(z, expected)
-
-    # Test autograd
-    a = torch.tensor([2.0, 3.0], requires_grad=True)
-    b = (a ** 2).sum()
-    b.backward()
-
-    # Gradient should be 2*a = [4.0, 6.0]
-    assert torch.allclose(a.grad, torch.tensor([4.0, 6.0]))
-
-    # Verify CUDA is available - this is required
-    assert torch.cuda.is_available(), "PyTorch CUDA support is not available"
-
-    # Test device transfer
-    device = torch.device('cuda:0')
-    x_cuda = x.to(device)
-    assert x_cuda.device.type == 'cuda'
-
-    # Test a simple operation on GPU
-    y_cuda = y.to(device)
-    z_cuda = torch.matmul(x_cuda, y_cuda.T)
-    assert z_cuda.device.type == 'cuda'
-    assert torch.allclose(z_cuda.cpu(), expected)
 
 def test_nsightful():
     from nsightful.notebook import is_interactive_notebook

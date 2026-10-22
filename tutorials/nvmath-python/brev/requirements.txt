@@ -1,3 +1,7 @@
+# PyTorch's CUDA 13.2 builds, to match the base image; PyPI only has the default
+# build.
+--extra-index-url https://download.pytorch.org/whl/cu132
+
 # Pin NVIDIA library versions to match PyTorch requirements from
 # pytorch:2.12.1-cuda13.2-cudnn9-runtime image.
 cuda-toolkit[cublas,nvrtc,nvjitlink]==13.2.1
@@ -26,6 +30,7 @@ jupyterlab-execute-time
 ipywidgets
 ipykernel
 ipyparallel
+# nbdistributed brings in PyTorch, which notebooks 01 and 08 also use.
 nbdistributed
 
 # MPI

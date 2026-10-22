@@ -1,7 +1,7 @@
 name: &tutorial-name warp
 
 x-config:
-  dockerfile: &dockerfile tutorials/warp/brev/dockerfile
+  dockerfile: &dockerfile brev/dockerfile
   image: &image ghcr.io/nvidia/warp-tutorial:latest
   working-dir: &working-dir /accelerated-computing-hub/tutorials/warp/notebooks
   default-jupyter-url: &default-jupyter-url ["/lab/tree/accelerated-computing-hub/tutorials/warp/notebooks/01__intro_to_warp.ipynb?file-browser-path=/accelerated-computing-hub/tutorials/warp/notebooks"]
@@ -48,6 +48,8 @@ services:
     build:
       context: ../../..
       dockerfile: *dockerfile
+      args:
+        ACH_TUTORIAL: *tutorial-name
     restart: "no"
   jupyter:
     <<: [*gpu-config, *common-service, *persistent-service]

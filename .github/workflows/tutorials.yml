@@ -1,0 +1,129 @@
+name: Tutorials
+
+# Build each changed tutorial's image from its Dockerfile, run the tutorial's
+# tests on a GPU, and publish the image to GHCR when the tests pass on main.
+#
+# Pull requests from forks run here through copy-pr-bot, which pushes vetted
+# PRs to pull-request/<number> branches (see CONTRIBUTING.md).
+
+on:
+  push:
+    branches:
+      - main
+      - "pull-request/[0-9]+"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      tutorials: ${{ steps.find.outputs.tutorials }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find tutorials to build
+        id: find
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          all=$(brev/discover-tutorials.bash | xargs -n1 basename)
+
+          # Compare main pushes with the previous main, and PR branches with
+          # where they left main. Manual runs and unknown bases build all.
+          base=""
+          if [ "${GITHUB_EVENT_NAME}" = push ]; then
+            if [ "${GITHUB_REF_NAME}" = main ]; then
+              base=${BEFORE}
+            else
+              base=$(git merge-base origin/main HEAD || true)
+            fi
+          fi
+
+          if [ -z "${base}" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            selected=${all}
+          else
+            changed=$(git diff --name-only "${base}" HEAD)
+            # Shared build and test files affect every tutorial.
+            if grep -qE '^(brev/|\.dockerignore$|\.github/workflows/tutorials\.yml$)' <<< "${changed}"; then
+              selected=${all}
+            else
+              selected=$(comm -12 \
+                <(grep -oP '^tutorials/\K[^/]+(?=/)' <<< "${changed}" | sort -u) \
+                <(sort <<< "${all}"))
+            fi
+          fi
+
+          tutorials=$(jq -Rnc '[inputs | select(length > 0)]' <<< "${selected}")
+          echo "tutorials=${tutorials}" >> "${GITHUB_OUTPUT}"
+          echo "Tutorials to build: ${tutorials}"
+
+  build-test-publish:
+    needs: changes
+    if: needs.changes.outputs.tutorials != '[]'
+    name: ${{ matrix.tutorial }}
+    runs-on: linux-amd64-gpu-l4-latest-1
+    timeout-minutes: 240
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        tutorial: ${{ fromJson(needs.changes.outputs.tutorials) }}
+    env:
+      TUTORIAL_COMPOSE: tutorials/${{ matrix.tutorial }}/brev/docker-compose.yml
+      BUILDKIT_PROGRESS: plain
+      DOCKER_CLI_HINTS: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Build image
+        run: docker compose -f "${TUTORIAL_COMPOSE}" build --pull base
+
+      - name: Stop DCGM so Nsight Compute can profile
+        run: |
+          # DCGM holds the GPU's performance counters, which stops ncu from
+          # profiling inside the test containers.
+          docker rm -f dcgm-exporter 2>/dev/null || true
+          for service in dcgm-exporter nvidia-dcgm dcgm nv-hostengine; do
+            sudo systemctl stop "${service}" 2>/dev/null || true
+          done
+          sudo pkill -9 nv-hostengine || true
+          sudo sysctl -w kernel.perf_event_paranoid=2 || true
+          sudo sysctl -w kernel.kptr_restrict=0 || true
+
+      - name: Test
+        run: brev/test-docker-compose.bash "${TUTORIAL_COMPOSE}"
+
+      - name: Log in to GitHub Container Registry
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          local_image=$(docker compose -f "${TUTORIAL_COMPOSE}" config --format json | jq -r '."x-config".image')
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.tutorial }}-tutorial"
+          for tag in latest "git-${GITHUB_SHA::7}"; do
+            docker tag "${local_image}" "${image}:${tag}"
+            docker push "${image}:${tag}"
+          done

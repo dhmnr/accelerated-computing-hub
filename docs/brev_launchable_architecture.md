@@ -10,8 +10,8 @@ A tutorial is a Docker image plus a collection of notebooks, slides, and other c
 tutorials/<tutorial-name>/
 ├── brev/
 │   ├── docker-compose.yml     # Docker Compose service definitions
-│   ├── dockerfile             # (or docker-recipe.py) Docker image definition
-│   ├── requirements.txt       # Python dependencies (if applicable)
+│   ├── requirements.txt       # Python dependencies, installed by brev/dockerfile
+│   ├── install.bash           # Optional extra image build steps
 │   └── test.bash              # Entrypoint for tutorial-level tests
 ├── notebooks/
 │   ├── <module>/              # Grouped by topic (e.g. fundamentals, kernels, libraries)
@@ -99,7 +99,7 @@ For each syllabus, a Docker Compose file is automatically generated on the [`gen
 
 ## Docker Images
 
-- Tutorial: A tutorial-specific image built and published by the ACH CI. The image is defined by `tutorials/<tutorial-name>/brev/dockerfile` or `tutorials/<tutorial-name>/brev/docker-recipe.py`.
+- Tutorial: A tutorial-specific image built from an NVIDIA base image on `nvcr.io`. Python tutorials use the shared [`brev/dockerfile`](../brev/dockerfile) with the tutorial's `brev/requirements.txt` and optional `brev/install.bash`; the stdpar tutorial has its own `brev/dockerfile`. CI publishes each image to GHCR after its tests pass on `main`.
 - [NVIDIA Nsight Streamer (nsys)](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/devtools/containers/nsight-streamer-nsys): A pre-built image that serves the Nsight Systems GUI over WebRTC.
 - [NVIDIA Nsight Streamer (ncu)](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/devtools/containers/nsight-streamer-ncu): A pre-built image that serves the Nsight Compute GUI over WebRTC.
 

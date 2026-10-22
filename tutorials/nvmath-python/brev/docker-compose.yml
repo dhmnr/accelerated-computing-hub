@@ -1,10 +1,9 @@
 name: &tutorial-name nvmath-python
 
 x-config:
-  dockerfile: &dockerfile tutorials/nvmath-python/brev/dockerfile
+  dockerfile: &dockerfile brev/dockerfile
   image: &image ghcr.io/nvidia/nvmath-python-tutorial:latest
   working-dir: &working-dir /accelerated-computing-hub/tutorials/nvmath-python/notebooks
-  large: &large true
   gpu-config: &gpu-config
     privileged: true
     ulimits:
@@ -48,6 +47,8 @@ services:
     build:
       context: ../../..
       dockerfile: *dockerfile
+      args:
+        ACH_TUTORIAL: *tutorial-name
     restart: "no"
   jupyter:
     <<: [*gpu-config, *common-service, *persistent-service]
@@ -67,7 +68,7 @@ services:
       - "0.0.0.0:3478:3478" # TURN
   ncu:
     <<: [*gpu-config, *common-service, *persistent-service]
-    image: nvcr.io/nvidia/devtools/nsight-streamer-ncu:2025.4.1
+    image: nvcr.io/nvidia/devtools/nsight-streamer-ncu:2026.2.1
     entrypoint: ["/accelerated-computing-hub/brev/entrypoint.bash", "nsight"]
     environment:
       <<: *common-env

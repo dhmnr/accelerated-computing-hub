@@ -1,0 +1,35 @@
+name: Checks
+
+# Repository checks that do not need a GPU. They run on GitHub-hosted runners,
+# so pull requests from forks get results without copy-pr-bot.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install nbformat
+        run: pip install nbformat
+
+      - name: Notebooks are in canonical format
+        run: python brev/test-notebook-format.py
+
+      - name: Binary files are tracked by Git LFS
+        if: ${{ !cancelled() }}
+        run: bash brev/test-git-lfs.bash .

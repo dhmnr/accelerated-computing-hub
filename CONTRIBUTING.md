@@ -18,17 +18,14 @@ uv pip install -r brev/requirements-dev.txt
 
 # Install pre-commit hooks
 pre-commit install
-pre-commit install --hook-type pre-push
 ```
 
 The developer dependencies in `brev/requirements-dev.txt` include:
 
 | Package | Used by |
 |---|---|
-| `pre-commit` | Git pre-commit and pre-push hooks. |
+| `pre-commit` | Git pre-commit hooks. |
 | `nbformat` | `brev/test-notebook-format.py` for canonical notebook validation. |
-| `nbconvert` | `brev/test-links.bash` for converting notebooks to markdown before link checking. |
-| `hpccm` | `brev/dev-build.bash` for generating Dockerfiles from HPCCM recipes (only needed for tutorials that use HPCCM). |
 
 You will also need the following non-Python tools. On Ubuntu/Debian:
 
@@ -39,13 +36,18 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 # Git LFS (https://git-lfs.com/)
 sudo apt-get install git-lfs
 git lfs install
-
-# Rust toolchain, needed to install lychee (https://rustup.rs/)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# lychee link checker (https://lychee.cli.rs/installation)
-cargo install lychee
 ```
+
+## Tutorial Images
+
+Every tutorial image is built on the fly from an NVIDIA base image on `nvcr.io`; there are no prebuilt base images to maintain.
+
+* **Python tutorials** share one Dockerfile, [`brev/dockerfile`](brev/dockerfile). It starts from the CUDA devel image, installs the tutorial's packages with pip into a virtual environment using Ubuntu's Python, and takes the tutorial name as the `ACH_TUTORIAL` build argument. Each tutorial provides:
+  * `brev/requirements.txt` (required): the tutorial's Python packages. `-r` lines resolve relative to `brev/`, so a tutorial can point at a lock file elsewhere in its directory.
+  * `brev/install.bash` (optional): extra build steps, run as root after the Python packages are installed.
+* **The stdpar tutorial** needs the NVIDIA HPC SDK compilers, so it has its own Dockerfile, [`tutorials/stdpar/brev/dockerfile`](tutorials/stdpar/brev/dockerfile), based on the HPC SDK image.
+
+Each tutorial's `brev/docker-compose.yml` points at its Dockerfile, so `docker compose -f tutorials/<tutorial>/brev/docker-compose.yml up --build` builds and starts it.
 
 ## Development Scripts
 
@@ -55,7 +57,7 @@ The `brev/` directory contains scripts for building, running, and testing tutori
 
 These are the primary scripts for local development. They all accept a tutorial name (the directory name under `tutorials/`, e.g. `accelerated-python`) and manage Docker Compose services for that tutorial.
 
-* **`brev/dev-build.bash [<tutorial-name>]`** - Builds Docker images. If a tutorial name is provided, builds only that tutorial; if omitted, builds all tutorials discovered by `discover-tutorials.bash`. Automatically generates Dockerfiles from HPCCM recipes if present.
+* **`brev/dev-build.bash [<tutorial-name>]`** - Builds Docker images. If a tutorial name is provided, builds only that tutorial; if omitted, builds all tutorials discovered by `discover-tutorials.bash`.
 
 * **`brev/dev-start.bash [--mount|--no-mount] <tutorial-name>`** - Starts containers for a tutorial. By default (`--mount`), bind-mounts the local repository into the containers at `/accelerated-computing-hub` so edits are reflected immediately. Use `--no-mount` to run from the image content only. Rebinds ports to `0.0.0.0` for local access.
 
@@ -73,26 +75,28 @@ These scripts are used by the pre-commit hooks and CI. You can also run them dir
 
 * **`brev/test-git-lfs.bash [<path>...]`** - Verifies that binary files (images, PDFs, presentations) are properly tracked by Git LFS and that no `.gitattributes` files exist in subdirectories.
 
-* **`brev/test-git-signatures.bash [<base-ref>]`** - Checks that all commits on the current branch (since `origin/main` by default) are cryptographically signed.
-
-* **`brev/test-links.bash <path>`** - Converts notebooks to markdown, then runs [lychee](https://github.com/lycheeverse/lychee) to check for broken links. Operates on a temporary copy to avoid polluting the working tree.
-
 * **`brev/test-docker-compose.bash [--mount|--no-mount] <tutorial-name|docker-compose-file> [test-args...]`** - The lower-level test runner that `dev-test.bash` delegates to. Starts containers, checks for restart loops, runs the tutorial's tests, verifies restart behavior, and tears everything down.
 
 ### Other Utility Scripts
 
 * **`brev/discover-tutorials.bash`** - Prints one line per tutorial directory (relative to repo root) for every tutorial that has a `brev/docker-compose.yml`. Used by `dev-build.bash` and CI.
 
-* **`brev/generate-tagged-docker-composes.py`** - Generates Docker Compose files with specific image tags for a given branch/commit. Used by CI to produce versioned artifacts that are pushed to the `generated` branch.
+## Continuous Integration
+
+Two GitHub Actions workflows run on this repository:
+
+| Workflow | Runs on | What it does |
+|---|---|---|
+| [`tutorials.yml`](.github/workflows/tutorials.yml) | Pushes to `main` and `pull-request/<number>` | For each tutorial whose files changed (or every tutorial, when shared files under `brev/` change), builds the image, runs the tutorial's tests on a GPU runner with `brev/test-docker-compose.bash`, and, on `main`, publishes the image to `ghcr.io/<owner>/<tutorial>-tutorial` once the tests pass. |
+| [`checks.yml`](.github/workflows/checks.yml) | Pull requests and pushes to `main` | Runs the notebook format and Git LFS checks on a GitHub-hosted runner. |
 
 ## Pre-Commit Hooks
 
-This repository uses [pre-commit](https://pre-commit.com/) to run automated checks before commits and pushes. Install the hooks after cloning:
+This repository uses [pre-commit](https://pre-commit.com/) to run the same checks as `checks.yml` before each commit. Install the hooks after cloning:
 
 ```bash
 pip install pre-commit
 pre-commit install
-pre-commit install --hook-type pre-push
 ```
 
 The following hooks are configured:
@@ -101,10 +105,8 @@ The following hooks are configured:
 |---|---|---|---|
 | **`notebook-format`** | pre-commit | `*.ipynb` | Validates that notebooks are in canonical format (consistent cell metadata, output ordering, etc.) to prevent noisy diffs from editor reformatting. |
 | **`git-lfs`** | pre-commit | Binary files (`*.pptx`, `*.pdf`, `*.png`, `*.jpg`, etc.) | Ensures binary files are tracked by Git LFS rather than committed directly to the repository. |
-| **`git-signatures`** | pre-push | All commits | Verifies that all commits being pushed have valid cryptographic signatures (see [Signing Your Commits](#signing-your-commits)). |
-| **`test-links`** | manual | `*.md`, `*.ipynb` | Checks for broken links in markdown and notebook files. Manual-only because link checking is flaky (external sites intermittently time out or rate-limit). Run with `pre-commit run --hook-stage manual test-links --all-files`. |
 
-If a hook fails, fix the issue and re-stage your changes before committing again.
+If a hook fails, fix the issue and re-stage your changes before committing again. `python3 brev/test-notebook-format.py --fix` rewrites notebooks into canonical format.
 
 ## Branches
 
@@ -121,11 +123,7 @@ Development branches for new features and bug fixes, respectively. Create these 
 
 ### `pull-request/<number>`
 
-These branches are created to enable CI on pull requests from forks. Because this project uses NVIDIA's self-hosted GitHub Actions runners, workflows cannot run directly on fork PRs for security reasons. NVIDIA's [**copy-pr-bot**](https://docs.gha-runners.nvidia.com/cpr/vetters/) automates this process -- when a maintainer determines a fork PR is safe to test, they push a copy of the PR to a `pull-request/<number>` branch on the upstream repo (where `<number>` is the PR number). The CI workflow is configured to trigger on branches matching the `pull-request/[0-9]+` pattern, so pushing to this branch runs the full build and test pipeline. The results are reported back on the original PR because the commit SHAs match. See the [Reviewing PRs From Forks](#reviewing-prs-from-forks) section below for the step-by-step process.
-
-### `generated`
-
-A CI-managed branch that stores generated artifacts (e.g. tagged Docker Compose files). The build workflow automatically commits updated Docker Compose files to this branch under `<source-branch>/tutorials/<tutorial-name>/` after each successful build. You should never need to commit to this branch manually.
+These branches are created to enable GPU CI on pull requests from forks. Because the tutorial tests run on NVIDIA's self-hosted GitHub Actions runners, they cannot run directly on fork PRs for security reasons. NVIDIA's [**copy-pr-bot**](https://docs.gha-runners.nvidia.com/cpr/vetters/) automates this process -- when a maintainer determines a fork PR is safe to test, they push a copy of the PR to a `pull-request/<number>` branch on the upstream repo (where `<number>` is the PR number). The `tutorials.yml` workflow triggers on branches matching the `pull-request/[0-9]+` pattern, so pushing to this branch builds and tests the changed tutorials. The results are reported back on the original PR because the commit SHAs match. See the [Reviewing PRs From Forks](#reviewing-prs-from-forks) section below for the step-by-step process.
 
 ### Event branches (`YYYY-MM-<event-name>`)
 
@@ -176,71 +174,6 @@ Use the most specific category path that accurately describes what was changed. 
 
 When opening a pull request from a fork, please check the **"Allow edits from maintainers"** checkbox. This lets maintainers push small fixes (typos, formatting, CI tweaks) directly to your PR branch without requiring a round-trip, which significantly speeds up the review process. You can find this checkbox at the bottom of the "Open a pull request" form on GitHub. See the [GitHub documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/allowing-changes-to-a-pull-request-branch-created-from-a-fork) for more details.
 
-## Pre-Commit Hooks
-
-This repository uses [pre-commit](https://pre-commit.com/) to run automated
-checks before commits and pushes. Install the hooks after cloning:
-
-```bash
-pip install pre-commit
-pre-commit install
-pre-commit install --hook-type pre-push
-```
-
-The following hooks are configured:
-
-### `notebook-format` (pre-commit)
-
-Checks that Jupyter notebooks are in **canonical format**: 1-space JSON
-indentation, sorted keys, standard metadata (kernelspec, colab settings,
-language_info), nbformat 4.5, and cell IDs present. Non-SOLUTION notebooks
-must have clean outputs (no outputs or execution counts). To auto-fix
-formatting issues:
-
-```bash
-python3 brev/test-notebook-format.py --fix
-```
-
-### `git-lfs` (pre-commit)
-
-Checks that binary files (`.pptx`, `.pdf`, `.png`, `.jpg`, `.jpeg`, `.gif`,
-`.webp`) are properly tracked by Git LFS. Also verifies that no
-`.gitattributes` files exist in subdirectories. If a file isn't tracked, fix it
-with:
-
-```bash
-git rm --cached <file>
-git add <file>
-```
-
-### `git-signatures` (pre-push)
-
-Checks that all commits on your branch (compared to `origin/main`) are
-cryptographically signed. Runs on `git push`, not on commit. See
-[GitHub's documentation on commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification)
-for setup instructions.
-
-### `test-links` (manual)
-
-Checks that links in changed Markdown files and Jupyter notebooks are valid
-using [lychee](https://github.com/lycheeverse/lychee). This hook is **manual**
-and does not run automatically on commit, because link checking is flaky
-(external sites intermittently time out or rate-limit, producing spurious
-failures). Run it explicitly with:
-
-```bash
-pre-commit run --hook-stage manual test-links
-```
-
-### `test-links-all` (manual)
-
-Checks links across the entire repository. This hook is configured as a
-**manual** stage and won't run automatically. Run it explicitly with:
-
-```bash
-pre-commit run --hook-stage manual test-links-all
-```
-
 ## License
 
 The preferred license for contributions to this project is detailed in the [LICENSE file](LICENSE).
@@ -270,9 +203,9 @@ Signed-off-by: Your Name <your.email@example.com>
 
 Your name and email must match your Git identity (`user.name` and `user.email`).
 
-### CryptographicG Commit Signing
+### Cryptographic Commit Signing
 
-We require that all commits to be cryptographically signed so they display as **"Verified"** on GitHub. The `git-signatures` pre-commit hook and CI both enforce this. You can sign with either a GPG key or an SSH key.
+We require that all commits be cryptographically signed so they display as **"Verified"** on GitHub. You can sign with either a GPG key or an SSH key.
 
 #### Option A: GPG Signing
 
@@ -322,9 +255,9 @@ For details on the tutorial directory structure, Docker Compose services, notebo
 
 ## Reviewing PRs From Forks
 
-Due to security challenges of running CI on self-hosted GitHub Actions runners workflows on PRs from forks will not trigger automatically.
+The checks in `checks.yml` run on fork PRs automatically. The tutorial build and test workflow runs on self-hosted GPU runners, so it does not trigger automatically on fork PRs.
 
-To work around this a maintainer needs to inspect the PR to ensure there are no concerns with running it, then push a copy of the PR to a branch on the upstream repo. This will trigger the CI to run. The results of the workflow will be reported back on the PR due to the matching SHAs of each commit.
+To run it, a maintainer needs to inspect the PR to ensure there are no concerns with running it, then push a copy of the PR to a branch on the upstream repo. This will trigger the CI to run. The results of the workflow will be reported back on the PR due to the matching SHAs of each commit.
 
 ```bash
 # Use the GitHub CLI to check out the PR

@@ -1,7 +1,7 @@
 name: &tutorial-name sim2real-blogs
 
 x-config:
-  dockerfile: &dockerfile tutorials/sim2real-blogs/brev/dockerfile
+  dockerfile: &dockerfile brev/dockerfile
   image: &image ghcr.io/nvidia/sim2real-blogs-tutorial:latest
   working-dir: &working-dir /accelerated-computing-hub/tutorials/sim2real-blogs/notebooks
   default-jupyter-url: &default-jupyter-url ["/lab/tree/accelerated-computing-hub/tutorials/sim2real-blogs/notebooks/mujoco/part1/01__mujoco_fundamentals.ipynb?file-browser-path=/accelerated-computing-hub/tutorials/sim2real-blogs/notebooks"]
@@ -20,6 +20,8 @@ x-config:
               capabilities: [gpu]
   common-env: &common-env
     ACH_TUTORIAL: *tutorial-name
+    MUJOCO_GL: egl
+    NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics
     ACH_RUN_TESTS: ${ACH_RUN_TESTS:-}
     ACH_TEST_ARGS: ${ACH_TEST_ARGS:-}
     ACH_RESTART_COMPOSE_SERVICES: "1"
@@ -48,6 +50,8 @@ services:
     build:
       context: ../../..
       dockerfile: *dockerfile
+      args:
+        ACH_TUTORIAL: *tutorial-name
     restart: "no"
   jupyter:
     <<: [*gpu-config, *common-service, *persistent-service]
