@@ -92,11 +92,9 @@ PYHPC_KERNELSPEC = {
     "name": "pyhpc",
 }
 
-ACCELERATED_PYTHON_NOTEBOOKS_PARTS = (
-    "tutorials",
-    "accelerated-python",
-    "notebooks",
-)
+# Tutorials whose notebooks follow SPECIAL_KERNELSPECS. PyHPC carries copies of
+# some Accelerated Python lessons, so the same paths apply to both.
+SPECIAL_KERNELSPEC_TUTORIALS = ("accelerated-python", "pyhpc")
 
 SPECIAL_KERNELSPECS = {
     "fundamentals/06__asynchrony__power_iteration.ipynb": NSIGHT_SYSTEMS_KERNELSPEC,
@@ -142,22 +140,23 @@ def is_solution_notebook(notebook_path: Path) -> bool:
     return "SOLUTION" in notebook_path.name
 
 
-def accelerated_python_notebook_path(notebook_path: Path) -> str | None:
-    """Return a path relative to the Accelerated Python notebook root."""
+def tutorial_notebook_path(notebook_path: Path) -> str | None:
+    """Return a path relative to the notebook root of a tutorial in
+    SPECIAL_KERNELSPEC_TUTORIALS."""
     parts = notebook_path.parts
-    width = len(ACCELERATED_PYTHON_NOTEBOOKS_PARTS)
-    for index in range(len(parts) - width + 1):
+    for index in range(len(parts) - 2):
         if (
-            tuple(parts[index : index + width])
-            == ACCELERATED_PYTHON_NOTEBOOKS_PARTS
+            parts[index] == "tutorials"
+            and parts[index + 1] in SPECIAL_KERNELSPEC_TUTORIALS
+            and parts[index + 2] == "notebooks"
         ):
-            return Path(*parts[index + width :]).as_posix()
+            return Path(*parts[index + 3 :]).as_posix()
     return None
 
 
 def expected_metadata_for_notebook(notebook_path: Path) -> dict:
     expected = copy.deepcopy(STANDARD_METADATA)
-    relative_path = accelerated_python_notebook_path(notebook_path)
+    relative_path = tutorial_notebook_path(notebook_path)
     if relative_path in SPECIAL_KERNELSPECS:
         expected["kernelspec"] = SPECIAL_KERNELSPECS[relative_path]
     if relative_path and relative_path.startswith(CUDA_TILE_NOTEBOOK_PREFIXES):

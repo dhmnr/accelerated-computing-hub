@@ -1,0 +1,50 @@
+# Arrays
+# PyOMP 0.5 requires Numba 0.63, which supports NumPy versions below 2.4.
+numpy == 2.3.5
+
+# Visualization
+matplotlib == 3.11.2
+
+# Dark mode detection
+jupyter-dark-detect == 0.1.0
+
+# Jupyter
+jupyter == 1.1.1
+jupyter-server-proxy == 4.5.0
+jupyterlab == 4.6.3
+jupyterlab-execute-time == 3.3.0
+
+# CUDA
+cuda-python == 13.2.0
+cuda-core == 1.2.0
+cupy-cuda13x == 14.2.0
+cuda-cccl[test-sysctk13] == 1.1.1
+numba-cuda == 0.30.4
+
+# Programming models and interop
+# JAX uses the system CUDA toolkit, which does not include cuDNN.
+jax[cuda13-local] == 0.11.1
+nvidia-cudnn-cu13
+numba == 0.63.1
+llvmlite == 0.46.0
+pyomp == 0.5.1
+nanobind == 3.0.1
+pybind11 == 3.1.0
+cffi == 2.1.1
+memory_profiler == 0.61.0
+
+# NVIDIA developer tools
+nvtx == 0.2.16
+nsightful[notebook] @ git+https://github.com/brycelelbach/nsightful.git@a41989403430168e02ac3cfdc4060bca4ebb8040
+
+# Distributed computing. The manylinux wheel contains both OpenMPI and MPICH
+# extension modules; the PyHPC kernels select MPICH through MPI4PY_MPIABI.
+mpi4py == 4.1.2
+
+# Runtime and notebook execution utilities
+psutil == 7.2.2
+nbformat == 5.11.1
+nbconvert == 7.17.1
+
+# Testing
+pytest == 9.1.1

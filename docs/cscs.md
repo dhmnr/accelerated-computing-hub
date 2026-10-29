@@ -1,15 +1,14 @@
 # CSCS containers
 
 CSCS compute nodes do not provide a Docker daemon. GitHub Actions builds the
-Accelerated Python image natively for `linux/amd64` and `linux/arm64` and
-publishes a single multi-architecture image to GHCR. The image includes the
-PyHPC course in the shared system Python environment. Daint pulls the ARM64
+PyHPC image natively for `linux/amd64` and `linux/arm64` and publishes a single
+multi-architecture image to GHCR. Daint pulls the ARM64
 member through the CSCS Slurm Container Engine; do not build it on Daint.
 
 The published image is public and requires no registry credentials:
 
 ```text
-ghcr.io/nvidia/accelerated-python-tutorial:main-latest
+ghcr.io/nvidia/pyhpc-tutorial:main-latest
 ```
 
 Wait for the main branch's **Build and Push Brev Tutorial Docker Images**
@@ -26,7 +25,7 @@ export ACH_REPO="$(git rev-parse --show-toplevel)"
 export ACH_BRANCH="main"
 export CSCS_EDF="${SCRATCH}/pyhpc-${ACH_BRANCH//\//-}.toml"
 curl -fsSL \
-  "https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/generated/${ACH_BRANCH}/tutorials/accelerated-python/brev/cscs.toml" \
+  "https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/generated/${ACH_BRANCH}/tutorials/pyhpc/brev/cscs.toml" \
   --output "${CSCS_EDF}"
 ```
 
@@ -46,11 +45,11 @@ For a reproducible run, generate a no-mount EDF pinned to the CI commit tag:
 
 ```bash
 ./brev/generate-cscs-edf.bash \
-  --image "ghcr.io/nvidia/accelerated-python-tutorial:main-latest" \
+  --image "ghcr.io/nvidia/pyhpc-tutorial:main-latest" \
   --tag "main-git-<seven-character-git-sha>" \
   --output "${SCRATCH}/pyhpc-cscs-pinned.toml" \
-  --workdir "/accelerated-computing-hub/tutorials/accelerated-python/notebooks" \
-  accelerated-python
+  --workdir "/accelerated-computing-hub/tutorials/pyhpc/notebooks" \
+  pyhpc
 ```
 
 Passing both `--image` and `--workdir` avoids a Docker Compose lookup, so this
@@ -97,7 +96,7 @@ compatible sibling for both the course materials and runtime scripts.
 From the workstation, start and connect with one command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/accelerated-python/brev/cscs-run-tutorial.bash | bash
+curl -fsSL https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/pyhpc/brev/cscs-run-tutorial.bash | bash
 ```
 
 The helper downloads the three small helper scripts to a temporary directory;
@@ -144,7 +143,7 @@ To launch on a Daint login node without the end-to-end helper, copy or download
 After it reports a node, run the workstation-side connection helper:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/accelerated-python/brev/cscs-connect-tutorial.bash
+curl -fsSLO https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/pyhpc/brev/cscs-connect-tutorial.bash
 chmod +x cscs-connect-tutorial.bash
 ./cscs-connect-tutorial.bash nidXXXXXX
 ```
@@ -198,7 +197,7 @@ resources.
 cd "${ACH_REPO}"
 CSCS_ACCOUNT="${CSCS_ACCOUNT}" \
 CSCS_EDF="${CSCS_EDF}" \
-  tutorials/accelerated-python/brev/test-cscs.bash
+  tutorials/pyhpc/brev/test-cscs.bash
 ```
 
 The driver runs:
@@ -219,7 +218,7 @@ For debugging, the individual commands are below.
 Run the package smoke tests:
 
 ```bash
-for test_file in test_packages.py test_rapids.py test_pyhpc_packages.py; do
+for test_file in test_packages.py; do
   srun -A "${CSCS_ACCOUNT}" -p normal -t 00:20:00 -N1 -n1 -c32 --gpus=1 \
     --environment="${CSCS_EDF}" \
     env ACH_RUN_TESTS=1 ACH_TEST_ARGS="test/${test_file}" \
@@ -234,7 +233,7 @@ srun -A "${CSCS_ACCOUNT}" -p normal -t 00:10:00 -N1 -n1 -c4 \
   --environment="${CSCS_EDF}" \
   bash -lc 'MPI4PY_MPIABI=mpich PATH="/opt/pyhpc-mpi/bin:${PATH}" \
     python -m pytest -q \
-    /accelerated-computing-hub/tutorials/accelerated-python/test/test_pyhpc_packages.py \
+    /accelerated-computing-hub/tutorials/pyhpc/test/test_packages.py \
     -k mpi4py -s'
 ```
 

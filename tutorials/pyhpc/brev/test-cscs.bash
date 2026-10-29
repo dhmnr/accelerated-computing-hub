@@ -60,14 +60,8 @@ run_container_tests() {
         /accelerated-computing-hub/brev/entrypoint.bash base
 }
 
-run_step "Accelerated Python package smoke tests" \
-    run_container_tests "${CSCS_PACKAGE_TIME}" "test/test_packages.py"
-
-run_step "RAPIDS package smoke tests" \
-    run_container_tests "${CSCS_PACKAGE_TIME}" "test/test_rapids.py"
-
 run_step "PyHPC package smoke tests" \
-    run_container_tests "${CSCS_PACKAGE_TIME}" "test/test_pyhpc_packages.py"
+    run_container_tests "${CSCS_PACKAGE_TIME}" "test/test_packages.py"
 
 run_step "Independent solution notebooks" \
     run_container_tests "${CSCS_NOTEBOOK_TIME}" "test/test_notebooks.py"
@@ -104,4 +98,4 @@ PY
         '
 
 echo ""
-echo "CSCS Accelerated Python/PyHPC validation completed successfully."
+echo "CSCS PyHPC validation completed successfully."

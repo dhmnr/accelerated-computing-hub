@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Launch the Accelerated Python/PyHPC web services from a Daint login node or
+# Launch the PyHPC web services from a Daint login node or
 # run their Slurm job.
 
 set -euo pipefail
@@ -290,7 +290,7 @@ login_main() {
     state_dir=$(realpath -m -- "${state_dir}")
     prepare_checkout "${repo}" "${branch}"
     if [ "${CHECKOUT_NEEDS_FRESH}" = true ] || \
-       [ ! -f "${repo}/tutorials/accelerated-python/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days.ipynb" ]; then
+       [ ! -f "${repo}/tutorials/pyhpc/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days.ipynb" ]; then
         local preserved_repo=${repo}
         local branch_slug=${branch//\//-}
         local sibling_base="${repo}-${branch_slug}"
@@ -328,7 +328,7 @@ login_main() {
             echo "Preparing a sibling checkout at ${repo}."
             prepare_checkout "${repo}" "${branch}"
             if [ "${CHECKOUT_NEEDS_FRESH}" = false ] && \
-               [ -f "${repo}/tutorials/accelerated-python/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days.ipynb" ]; then
+               [ -f "${repo}/tutorials/pyhpc/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days.ipynb" ]; then
                 break
             fi
             if [ "${candidate_existed}" = false ]; then
@@ -419,10 +419,10 @@ fi
 ACH_REPO=${ACH_REPO:?ACH_REPO is not set}
 ACH_STATE=${ACH_STATE:-${SCRATCH:?SCRATCH is not set}/ach-pyhpc-web}
 ACH_RELEASE_BRANCH=${ACH_RELEASE_BRANCH:?ACH_RELEASE_BRANCH is not set}
-COMPOSE_URL=${ACH_COMPOSE_URL:-https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/generated/${ACH_RELEASE_BRANCH}/tutorials/accelerated-python/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days__docker_compose.yml}
+COMPOSE_URL=${ACH_COMPOSE_URL:-https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/generated/${ACH_RELEASE_BRANCH}/tutorials/pyhpc/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days__docker_compose.yml}
 ACH_PREPARE_SOURCE=${ACH_PREPARE_SOURCE:?ACH_PREPARE_SOURCE is not set}
 
-if [ ! -f "${ACH_REPO}/tutorials/accelerated-python/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days.ipynb" ]; then
+if [ ! -f "${ACH_REPO}/tutorials/pyhpc/notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days.ipynb" ]; then
     echo "Error: student checkout has no integrated PyHPC syllabus: ${ACH_REPO}" >&2
     exit 1
 fi

@@ -2,7 +2,7 @@
 
 This modular tutorial contains content on all things related to accelerated Python:
 
-- [Notebooks](./notebooks) containing lessons and exercises organized by topic, including CUDA Tile and the PyHPC material on CuPy, CUDA kernels, MPI, JAX, PyOMP, and Python/C++ interoperability. They are intended for self-paced or instructor-led learning and can be run on [NVIDIA Brev](https://brev.nvidia.com) or [Google Colab](https://colab.research.google.com).
+- [Notebooks](./notebooks) containing lessons and exercises organized by topic, including CUDA Tile. They are intended for self-paced or instructor-led learning and can be run on [NVIDIA Brev](https://brev.nvidia.com) or [Google Colab](https://colab.research.google.com).
 - [Slides](./slides) containing the lecture content for the lessons.
 - [Syllabi](./notebooks/syllabi) that select a subset of the notebooks for a particular learning objective.
 - [Docker Images](https://github.com/NVIDIA/accelerated-computing-hub/pkgs/container/accelerated-python-tutorial) and [Docker Compose files](./brev/docker-compose.yml) for creating Brev Launchables or running locally.
@@ -20,42 +20,12 @@ Brev Launchables of this tutorial should use:
 - [CUDA Python Tutorial - CuPy, SIMT, & Tile - 8 Hours](./notebooks/syllabi/cuda_python__cupy_simt_tile__8_hours.ipynb).
 - [CUDA Python - cuda.core & CCCL - 2 Hours](./notebooks/syllabi/cuda_python__cuda_core_cccl__2_hours.ipynb)
 - [CUDA Tile Tutorial](./notebooks/syllabi/cutile.ipynb)
-- [PyHPC - NumPy, CuPy, & mpi4py - 4 Hours](./notebooks/syllabi/pyhpc__numpy_cupy_mpi4py__4_hours.ipynb)
-- [PyHPC - CuPy, Kernels, MPI, JAX, OMP, Interop - 2 Days](./notebooks/syllabi/pyhpc__cupy_kernels_mpi_jax_omp_interop__2_days.ipynb)
 
-The two-day PyHPC syllabus and the eight-hour CUDA Python course select lessons
-from the same topic directories as every other Accelerated Python course. The
-eight-hour course contains only the CuPy and Numba CUDA kernel-authoring
-foundations followed by CUDA Tile lessons 44 through 47. Self-contained lessons
-with a Colab badge can run on Google Colab. C++ interoperability and the Shallow
-Water Equations applications require the shared tutorial image and checked-in
-source files.
+The eight-hour CuPy, SIMT, & Tile course contains only the CuPy and Numba CUDA
+kernel-authoring foundations followed by CUDA Tile lessons 44 through 47.
+Self-contained lessons with a Colab badge can run on Google Colab.
 
-Applications 81 through 87 form one ordered case study. They solve the same 1D
-Shallow Water Equations problem with NumPy, JAX, PyOMP, nanobind, CppJIT/CUB,
-and mpi4py. Notebooks 81 through 86 write measurements to `timings.json`; run
-them before notebook 87, which compares the results. CppJIT is built from the
-course's pinned ISC 2026 branch and is available in the tutorial image rather
-than from the public alpha package.
-
-The image has one system Python environment. The `Python 3 (PyHPC)` and Nsight
-profiler kernels only select course-specific startup and MPI settings: MPICH is
-used for local multi-rank exercises, while the default Python kernel continues
-to use OpenMPI. For CSCS Alps/Daint deployment, follow the [CSCS launch
-guide](../../docs/cscs.md).
-
-## Upgrading an existing deployment
-
-The merged course initializes a new Docker repository volume named
-`accelerated-python_accelerated-computing-hub-v2`. Existing volumes named
-`accelerated-python_accelerated-computing-hub` or
-`pyhpc_accelerated-computing-hub` are deliberately left untouched. Before
-removing either old volume, copy any edited notebooks from the former
-Accelerated Python tree and move any former `tutorials/pyhpc/notebooks` work
-into the matching `fundamentals`, `kernels`, `distributed`, or `applications`
-directory under `tutorials/accelerated-python/notebooks` in the new deployment.
-Do not run `docker compose down --volumes` against the old deployment until
-that work has been backed up and verified.
+The PyHPC course is its own tutorial: [`tutorials/pyhpc`](../pyhpc/README.md).
 
 ## Notebooks
 
@@ -102,19 +72,4 @@ that work has been backed up and verified.
 
 | # | Exercise | Link | Solution |
 |---|----------|------|----------|
-| 60 | mpi4py | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/distributed/60__mpi4py.ipynb) | |
 | 61 | Dask | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/distributed/61__dask.ipynb) | |
-| 62 | mpi4py: Heat Equation | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/distributed/62__mpi4py__heat_equation.ipynb) | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/distributed/solutions/62__mpi4py__heat_equation__SOLUTION.ipynb) |
-
-### Applications
-
-| # | Exercise | Link | Solution |
-|---|----------|------|----------|
-| 80 | C++ Interoperability | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/80__cpp_interop.ipynb) | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/solutions/80__cpp_interop__SOLUTION.ipynb) |
-| 81 | Shallow Water Equations: NumPy Baseline | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/81__swe__intro.ipynb) | |
-| 82 | Shallow Water Equations: JAX | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/82__swe__jax.ipynb) | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/solutions/82__swe__jax__SOLUTION.ipynb) |
-| 83 | Shallow Water Equations: PyOMP | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/83__swe__pyomp.ipynb) | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/solutions/83__swe__pyomp__SOLUTION.ipynb) |
-| 84 | Shallow Water Equations: nanobind | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/84__swe__nanobind.ipynb) | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/solutions/84__swe__nanobind__SOLUTION.ipynb) |
-| 85 | Shallow Water Equations: CppJIT and CUB | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/85__swe__cppjit__cub.ipynb) | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/solutions/85__swe__cppjit__cub__SOLUTION.ipynb) |
-| 86 | Shallow Water Equations: mpi4py | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/86__swe__mpi4py.ipynb) | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/solutions/86__swe__mpi4py__SOLUTION.ipynb) |
-| 87 | Shallow Water Equations: Synthesis | [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NVIDIA/accelerated-computing-hub/blob/main/tutorials/accelerated-python/notebooks/applications/87__swe__synthesis.ipynb) | |

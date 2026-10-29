@@ -3,7 +3,6 @@ Startup tests for accelerated-python tutorial.
 These tests validate that key packages are installed and functional.
 """
 
-import importlib.util
 from importlib.metadata import version as distribution_version
 import os
 import subprocess
@@ -65,24 +64,14 @@ def test_dependency_versions():
 
 
 def test_system_environment():
-    """The shared system environment uses the current stack and OpenMPI."""
-    import jax
-    import llvmlite
-    import numba
-
+    """The tutorial's Python environment runs mpi4py with OpenMPI."""
     assert sys.prefix == os.environ["VIRTUAL_ENV"] == "/opt/venv"
-    assert numba.__version__ == "0.63.1"
-    assert llvmlite.__version__ == "0.46.0"
-    assert jax.__version__ == "0.11.1"
-    assert importlib.util.find_spec("numba.openmp") is not None
 
     program = (
         "from mpi4py import MPI\n"
         "assert MPI.get_vendor()[0] == 'Open MPI'\n"
         "assert MPI.COMM_WORLD.Get_size() == 2\n"
     )
-    default_mpi_env = os.environ.copy()
-    default_mpi_env.pop("MPI4PY_MPIABI", None)
     result = subprocess.run(
         [
             "/usr/bin/mpirun.openmpi",
@@ -99,7 +88,6 @@ def test_system_environment():
         capture_output=True,
         text=True,
         timeout=120,
-        env=default_mpi_env,
     )
     assert result.returncode == 0, result.stdout + result.stderr
 

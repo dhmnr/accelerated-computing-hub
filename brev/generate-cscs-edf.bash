@@ -3,7 +3,7 @@
 # Generate a CSCS Slurm Container Engine EDF for a tutorial image.
 #
 # The EDF can be used on CSCS systems with Slurm's container support, e.g.:
-#   srun --environment=${SCRATCH}/ach/accelerated-python.toml bash
+#   srun --environment=${SCRATCH}/ach/pyhpc.toml bash
 
 set -eu
 
@@ -183,7 +183,7 @@ mkdir -p "$(dirname "${OUTPUT}")"
     echo "ACH_USER = \"${ACH_USER:-ach}\""
     echo "ACH_UID = \"${ACH_UID:-1000}\""
     echo "ACH_GID = \"${ACH_GID:-1000}\""
-    if [ "${ACH_TUTORIAL}" = "accelerated-python" ]; then
+    if [ "${ACH_TUTORIAL}" = "pyhpc" ]; then
         echo "PMIX_MCA_gds = \"hash\""
         echo "PMIX_MCA_psec = \"native\""
     fi

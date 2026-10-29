@@ -1,5 +1,5 @@
 """
-Smoke tests for the PyHPC packages in the Accelerated Python image.
+Smoke tests for the packages in the PyHPC image.
 
 Each test imports a library the tutorial relies on and exercises it just
 enough to prove it is installed and functional on this machine (GPU, MPI,
@@ -37,7 +37,7 @@ def _pyhpc_runtime_environment():
 
 
 def test_system_python_environment():
-    """PyHPC and RAPIDS packages share the system Python environment."""
+    """PyHPC packages are in the image's Python environment."""
     import jax
     import llvmlite
     import mpi4py

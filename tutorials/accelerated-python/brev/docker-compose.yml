@@ -85,6 +85,6 @@ services:
 
 volumes:
   accelerated-computing-hub:
-    # PyHPC moved into this tutorial, so initialize a new repository snapshot
-    # without deleting either tutorial's existing student-work volume.
+    # The -v2 volume dates from when PyHPC was merged into this tutorial; it
+    # keeps older deployments' student-work volumes untouched.
     name: ${ACH_VOLUME_NAME:-accelerated-python_accelerated-computing-hub-v2}

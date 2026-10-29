@@ -2,8 +2,8 @@
 #
 # Run tests for the accelerated-python tutorial.
 #
-# When called with no arguments, runs all package tests, the independent
-# solution notebooks, and the ordered SWE application sequence.
+# When called with no arguments, runs all package tests and the solution
+# notebooks.
 # When called with arguments:
 #   - Bare words (e.g. "06") are treated as a pytest -k filter for notebook tests.
 #   - One Python test file, supplied first, is forwarded to pytest directly.
@@ -14,7 +14,6 @@
 #   ./test.bash 06                       # run notebook tests matching "06"
 #   ./test.bash "40 or 41"              # run notebook tests matching "40 or 41"
 #   ./test.bash test/test_packages.py    # run package tests
-#   ./test.bash test/test_pyhpc_packages.py # run PyHPC package tests
 #   ./test.bash -k "cupy"               # filter every test collection
 
 START_TIME=$(date +%s.%N)
@@ -102,19 +101,16 @@ if [ $# -gt 0 ]; then
         pytest \
             "${TUTORIAL_ROOT}/test/test_packages.py" \
             "${TUTORIAL_ROOT}/test/test_rapids.py" \
-            "${TUTORIAL_ROOT}/test/test_pyhpc_packages.py" \
             "${TUTORIAL_ROOT}/test/test_notebooks.py" \
-            "${TUTORIAL_ROOT}/test/test_swe_notebooks.py" \
             "$@"
         EXIT_CODE=$?
     elif [[ "$1" == */* ]] || [[ "$1" == *.py ]]; then
         echo "Error: test target not found: $1" >&2
         EXIT_CODE=2
     else
-        echo "Running independent and ordered SWE notebook tests with -k \"$*\""
+        echo "Running notebook tests with -k \"$*\""
         pytest \
             "${TUTORIAL_ROOT}/test/test_notebooks.py" \
-            "${TUTORIAL_ROOT}/test/test_swe_notebooks.py" \
             -k "$*"
         EXIT_CODE=$?
     fi
@@ -122,15 +118,13 @@ else
     echo "Running Accelerated Python package tests..."
     pytest \
         "${TUTORIAL_ROOT}/test/test_packages.py" \
-        "${TUTORIAL_ROOT}/test/test_rapids.py" \
-        "${TUTORIAL_ROOT}/test/test_pyhpc_packages.py"
+        "${TUTORIAL_ROOT}/test/test_rapids.py"
     EXIT_CODE_PACKAGES=$?
 
     echo ""
-    echo "Running independent and ordered SWE application notebook tests..."
+    echo "Running notebook tests..."
     pytest \
-        "${TUTORIAL_ROOT}/test/test_notebooks.py" \
-        "${TUTORIAL_ROOT}/test/test_swe_notebooks.py"
+        "${TUTORIAL_ROOT}/test/test_notebooks.py"
     EXIT_CODE_NOTEBOOKS=$?
 
     EXIT_CODE=$((EXIT_CODE_PACKAGES || EXIT_CODE_NOTEBOOKS))
