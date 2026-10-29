@@ -6,8 +6,11 @@
 #   docker build -f docker/dockerfile --build-arg ACH_TUTORIAL=<tutorial> .
 #
 # Tutorial-specific inputs live in tutorials/<tutorial>/docker/:
-#   requirements.txt  Python packages, installed into /opt/venv with pip (required).
-#                     Paths in `-r` lines resolve relative to docker/.
+#   requirements.txt       The tutorial's Python packages (required). Paths in
+#                          `-r` lines resolve relative to docker/.
+#   requirements.lock.txt  Every package pinned with hashes, generated from
+#                          requirements.txt by docker/lock-requirements.bash
+#                          (required). The image installs only from the lock.
 #   install.bash      Extra build steps, run as root after the Python packages
 #                     are installed (optional).
 
@@ -16,6 +19,7 @@ ARG BASE_IMAGE=nvcr.io/nvidia/cuda:13.2.1-devel-ubuntu24.04
 FROM ${BASE_IMAGE}
 
 ARG ACH_TUTORIAL
+ARG PIP_VERSION=26.2.2
 # nsightful's profiling kernels need Nsight Systems 2026.1.1 or newer.
 ARG NSIGHT_SYSTEMS_VERSION=2026.1.3
 
@@ -59,12 +63,12 @@ RUN echo 'ALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
 # Python is the OS's (3.12 on Ubuntu 24.04), in a virtual environment that
 # stays writable so notebooks can pip install.
 RUN python3 -m venv "${VIRTUAL_ENV}" \
- && pip install --no-cache-dir --upgrade pip
+ && pip install --no-cache-dir "pip==${PIP_VERSION}"
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=tutorials/${ACH_TUTORIAL},target=/tmp/ach-tutorial \
     cd /tmp/ach-tutorial/docker \
- && pip install -r requirements.txt \
+ && pip install --require-hashes -r requirements.lock.txt \
  && if [ -f install.bash ]; then bash -euo pipefail install.bash; fi \
  && chmod -R a+rwX "${VIRTUAL_ENV}"
 

@@ -1,4 +1,14 @@
 # The unchanged hash lock for the measured blog results (MuJoCo 3.8.0, MuJoCo
-# Warp 3.8.0.3, Warp 1.15.0). install.bash adds the notebook and test tools in
-# notebook-requirements.txt on top of it.
+# Warp 3.8.0.3, Warp 1.15.0). Its exact pins carry into requirements.lock.txt,
+# so the notebook and test tools below cannot upgrade a locked package.
 -r ../notebooks/mujoco/requirements.lock.txt
+
+scipy
+ipympl
+Pillow
+jupyter-dark-detect==0.1.0
+jupyter
+jupyter-server-proxy
+jupyterlab
+jupyterlab-execute-time
+pytest

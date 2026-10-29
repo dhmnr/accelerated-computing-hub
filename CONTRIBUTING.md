@@ -43,9 +43,20 @@ git lfs install
 Every tutorial image is built on the fly from an NVIDIA base image on `nvcr.io`; there are no prebuilt base images to maintain.
 
 * **Python tutorials** share one Dockerfile, [`docker/dockerfile`](docker/dockerfile). It starts from the CUDA devel image, installs the tutorial's packages with pip into a virtual environment using Ubuntu's Python, and takes the tutorial name as the `ACH_TUTORIAL` build argument. Each tutorial provides:
-  * `docker/requirements.txt` (required): the tutorial's Python packages. `-r` lines resolve relative to `docker/`, so a tutorial can point at a lock file elsewhere in its directory.
+  * `docker/requirements.txt` (required): the tutorial's Python packages, edited by hand. `-r` lines resolve relative to `docker/`, so a tutorial can include another requirements file in its directory.
+  * `docker/requirements.lock.txt` (required): every package, including dependencies, pinned with hashes. It is generated from `requirements.txt`, and the image installs only from it.
   * `docker/install.bash` (optional): extra build steps, run as root after the Python packages are installed.
-* **The stdpar tutorial** needs the NVIDIA HPC SDK compilers, so it has its own Dockerfile, [`tutorials/stdpar/docker/dockerfile`](tutorials/stdpar/docker/dockerfile), based on the HPC SDK image.
+* **The stdpar tutorial** needs the NVIDIA HPC SDK compilers, so it has its own Dockerfile, [`tutorials/stdpar/docker/dockerfile`](tutorials/stdpar/docker/dockerfile), based on the HPC SDK image. It uses the same `requirements.txt` and `requirements.lock.txt`.
+
+### Updating Python Packages
+
+After changing a tutorial's `requirements.txt`, regenerate its lock and commit both files:
+
+```bash
+docker/lock-requirements.bash <tutorial>
+```
+
+The script resolves the packages with Ubuntu 24.04's Python 3.12, the Python in every tutorial image, inside a container. It keeps the existing pins unless `requirements.txt` no longer allows them. To move every package to the newest version `requirements.txt` allows, run `docker/lock-requirements.bash --upgrade <tutorial>`.
 
 Each tutorial's `docker/docker-compose.yml` points at its Dockerfile, so `docker compose -f tutorials/<tutorial>/docker/docker-compose.yml up --build` builds and starts it.
 
@@ -88,7 +99,7 @@ Two GitHub Actions workflows run on this repository:
 | Workflow | Runs on | What it does |
 |---|---|---|
 | [`tutorials.yml`](.github/workflows/tutorials.yml) | Pushes to `main` and `pull-request/<number>` | For each tutorial whose files changed (or every tutorial, when shared files under `docker/` change), builds the image, runs the tutorial's tests on a GPU runner with `docker/test-docker-compose.bash`, and, on `main`, publishes the image to `ghcr.io/<owner>/<tutorial>-tutorial` once the tests pass. |
-| [`checks.yml`](.github/workflows/checks.yml) | Pull requests and pushes to `main` | Runs the notebook format and Git LFS checks on a GitHub-hosted runner. |
+| [`checks.yml`](.github/workflows/checks.yml) | Pull requests and pushes to `main` | Runs the notebook format and Git LFS checks on a GitHub-hosted runner, and checks that the lock of each tutorial whose requirements changed is up to date (`docker/lock-requirements.bash --check`). |
 
 ## Pre-Commit Hooks
 

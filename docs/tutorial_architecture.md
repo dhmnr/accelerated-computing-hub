@@ -10,7 +10,8 @@ A tutorial is a Docker image plus a collection of notebooks, slides, and other c
 tutorials/<tutorial-name>/
 ├── docker/
 │   ├── docker-compose.yml     # Docker Compose service definitions
-│   ├── requirements.txt       # Python dependencies, installed by docker/dockerfile
+│   ├── requirements.txt       # Python dependencies, edited by hand
+│   ├── requirements.lock.txt  # Every dependency pinned with hashes; the image installs from this
 │   ├── install.bash           # Optional extra image build steps
 │   └── test.bash              # Entrypoint for tutorial-level tests
 ├── notebooks/

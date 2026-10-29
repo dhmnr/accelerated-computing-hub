@@ -43,7 +43,7 @@ cuml-cu13 == 26.8.0
 
 # NVIDIA developer tools
 nvtx == 0.2.16
-nsightful[notebook] @ git+https://github.com/brycelelbach/nsightful.git@a41989403430168e02ac3cfdc4060bca4ebb8040
+nsightful[notebook] @ https://github.com/brycelelbach/nsightful/archive/a41989403430168e02ac3cfdc4060bca4ebb8040.tar.gz
 
 # Distributed computing, with the image's OpenMPI.
 mpi4py == 4.1.2

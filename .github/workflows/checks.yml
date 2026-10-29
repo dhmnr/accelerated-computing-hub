@@ -33,3 +33,37 @@ jobs:
       - name: Binary files are tracked by Git LFS
         if: ${{ !cancelled() }}
         run: bash docker/test-git-lfs.bash .
+
+  locks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Lock files match requirements
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          all=$(docker/discover-tutorials.bash | xargs -n1 basename)
+          if [ -z "${BASE}" ] || ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+            selected=${all}
+          else
+            changed=$(git diff --name-only "${BASE}" HEAD)
+            if grep -qx 'docker/lock-requirements.bash' <<< "${changed}"; then
+              selected=${all}
+            else
+              # A tutorial's requirements can include other files in its
+              # directory, such as newton's and sim2real's upstream locks.
+              selected=$(comm -12 \
+                <(grep -oP '^tutorials/\K[^/]+(?=/.*requirements[^/]*\.txt$)' <<< "${changed}" | sort -u) \
+                <(sort <<< "${all}"))
+            fi
+          fi
+          if [ -z "${selected}" ]; then
+            echo "No requirements changed."
+            exit 0
+          fi
+          docker/lock-requirements.bash --check ${selected}

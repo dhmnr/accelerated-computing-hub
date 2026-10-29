@@ -9,6 +9,7 @@ ARG BASE_IMAGE=nvcr.io/nvidia/nvhpc:26.5-devel-cuda13.2-ubuntu24.04
 
 FROM ${BASE_IMAGE}
 
+ARG PIP_VERSION=26.2.2
 # NVIDIA's std::execution implementation, pinned to a commit known to work with
 # the tutorial's `stdexec::on(sch, sender)` usage. Bump it with the HPC SDK.
 ARG STDEXEC_COMMIT=433dc54f93ab503b5595c2c7c047c8e9b80b62bd
@@ -91,11 +92,11 @@ RUN test -f "${NVHPC_ROOT}/compilers/include/mdspan" \
 # Python is the OS's (3.12 on Ubuntu 24.04), in a virtual environment that
 # stays writable so notebooks can pip install.
 RUN python3 -m venv "${VIRTUAL_ENV}" \
- && pip install --no-cache-dir --upgrade pip
+ && pip install --no-cache-dir "pip==${PIP_VERSION}"
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=tutorials/stdpar/docker/requirements.txt,target=/tmp/requirements.txt \
-    pip install -r /tmp/requirements.txt \
+    --mount=type=bind,source=tutorials/stdpar/docker/requirements.lock.txt,target=/tmp/requirements.lock.txt \
+    pip install --require-hashes -r /tmp/requirements.lock.txt \
  && chmod -R a+rwX "${VIRTUAL_ENV}" \
  && jupyter labextension disable "@jupyterlab/apputils-extension:announcements" \
  && jupyter labextension disable "@jupyterlab/console-extension:tracker"
