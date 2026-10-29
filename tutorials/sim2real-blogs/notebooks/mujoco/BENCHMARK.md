@@ -34,7 +34,7 @@ Including host output collection and task validation: For SO-101, the first test
 
 Excluded configurations: reBot GPU at 512 worlds. 35 of 36 configurations passed every required episode. Every accepted world must physically grasp, lift, carry, release and settle both cubes inside the box. One failed episode excludes the entire configuration and its timing from comparisons; exact physical and numerical checks are in the guide.
 
-Use the [benchmark notebook](part2/04__cpu_gpu_benchmark.ipynb) to reproduce the task. The [companion benchmark guide](BENCHMARK.md) explains the measurement method; [full results](benchmark-results/2026-10-09-validated-box-gpu0/README.md) retain ratios, ranges, failures and hardware configuration. These community measurements are not official product benchmarks or evidence of lower-end GPU, Colab or Brev performance.
+Use the [benchmark notebook](part2/04__cpu_gpu_benchmark.ipynb) to reproduce the task. The [companion benchmark guide](BENCHMARK.md) explains the measurement method; [full results](benchmark-results/2026-10-09-validated-box-gpu0/README.md) retain ratios, ranges, failures and hardware configuration. These community measurements are not official product benchmarks or evidence of lower-end GPU, Colab or cloud VM performance.
 
 The companion also includes an [ALOHA pot-and-lid replay](reference-benchmark/README.md) comparing native MuJoCo on CPU with MuJoCo Warp on GPU. It is a separate workload and does not measure Newton's API or this box task.
 
@@ -114,9 +114,9 @@ Open [the benchmark notebook on Colab](https://colab.research.google.com/github/
 
 Review preflight on the assigned CPU/GPU before enabling measurements. Hosted hardware and runtime limits vary; this launch recipe is not a validated Colab box-task result. Download the report archive before disconnection. The CPU baseline belongs to the runtime.
 
-## NVIDIA Brev
+## Remote GPU VM
 
-An existing Brev GPU VM can use the same repository and lock:
+An existing Linux GPU VM can use the same repository and lock:
 
 ```bash
 GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none https://github.com/johnnynunez/accelerated-computing-hub.git
@@ -130,4 +130,4 @@ uv pip sync --python .venv/bin/python --require-hashes \
   --task box --preset workstation --nconmax 64 --njmax 128 --timeout 7200 --preflight
 ```
 
-Use that interpreter for the measurement command or notebook. Review the instance allocation and preserve reports before stopping the VM. Box-task validation on Brev is pending.
+Use that interpreter for the measurement command or notebook. Review the instance allocation and preserve reports before stopping the VM. Box-task validation on a remote VM is pending.

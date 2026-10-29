@@ -58,16 +58,16 @@ Use Python 3.12 with the module's unchanged hash lock. This update deliberately
 uses the measured MuJoCo 3.8.0 / MuJoCo Warp 3.8.0.3 / Warp 1.15.0 line, replacing
 the previous Hub tutorial's 3.12 / 1.17 dependencies. Newton uses a separate environment.
 
-The existing Brev Docker Compose services and shared Hub entrypoint are retained.
+The existing Docker Compose services and shared Hub entrypoint are retained.
 The image installs the same physics lock before adding notebook/UI tools under
 constraints. Build and test it through the Hub scripts:
 
 ```bash
-brev/dev-build.bash sim2real-blogs
-brev/dev-test.bash sim2real-blogs
+docker/dev-build.bash sim2real-blogs
+docker/dev-test.bash sim2real-blogs
 ```
 
-A container build, Brev deployment or Colab run is separate validation; imported
+A container build, cloud deployment or Colab run is separate validation; imported
 workstation measurements do not establish those results. The Colab links select
 a fixed public notebook revision; setup downloads the separately pinned runtime source. Setup prints its resolved Git SHA,
 refuses to overwrite a checkout at another revision, and skips LFS downloads for

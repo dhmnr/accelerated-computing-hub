@@ -8,13 +8,12 @@ This repository contains a series of tutorial notebooks demonstrating the capabi
 
 nvmath-python is designed to provide high-performance mathematical operations that complement existing GPU libraries like CuPy and PyTorch. Unlike traditional array libraries, nvmath-python focuses on advanced mathematical operations with features like kernel fusion, flexible APIs, and device-level integration.
 
-These notebooks can be run on [NVIDIA Brev](https://brev.nvidia.com) or [Google Colab](https://colab.research.google.com).
+These notebooks can be run on locally with Docker, on a cloud GPU instance, or on [Google Colab](https://colab.research.google.com).
 
-There are [Docker Images](https://github.com/NVIDIA/accelerated-computing-hub/pkgs/container/nvmath-python-tutorial) and [Docker Compose files](./brev/docker-compose.yml) for creating Brev Launchables or running locally.
+There are [Docker Images](https://github.com/NVIDIA/accelerated-computing-hub/pkgs/container/nvmath-python-tutorial) and [Docker Compose files](./docker/docker-compose.yml) for running locally or on a cloud GPU instance.
 
-Brev Launchables of this tutorial should use:
+This tutorial needs:
 - 4xL4, 2xL4, 2xL40S, or 1x L40S instances.
-- Crusoe or any other provider with Flexible Ports.
 
 ## Prerequisites
 

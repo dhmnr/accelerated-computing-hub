@@ -135,9 +135,6 @@ cython_debug/
 .cursor
 .vscode
 
-# Brev Git branch update lockfile
-.git-checkout-done
-
 # Container logs
 logs/
 

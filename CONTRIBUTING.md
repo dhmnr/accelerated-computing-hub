@@ -14,18 +14,18 @@ uv venv .venv
 source .venv/bin/activate
 
 # Install developer dependencies
-uv pip install -r brev/requirements-dev.txt
+uv pip install -r docker/requirements-dev.txt
 
 # Install pre-commit hooks
 pre-commit install
 ```
 
-The developer dependencies in `brev/requirements-dev.txt` include:
+The developer dependencies in `docker/requirements-dev.txt` include:
 
 | Package | Used by |
 |---|---|
 | `pre-commit` | Git pre-commit hooks. |
-| `nbformat` | `brev/test-notebook-format.py` for canonical notebook validation. |
+| `nbformat` | `docker/test-notebook-format.py` for canonical notebook validation. |
 
 You will also need the following non-Python tools. On Ubuntu/Debian:
 
@@ -42,44 +42,44 @@ git lfs install
 
 Every tutorial image is built on the fly from an NVIDIA base image on `nvcr.io`; there are no prebuilt base images to maintain.
 
-* **Python tutorials** share one Dockerfile, [`brev/dockerfile`](brev/dockerfile). It starts from the CUDA devel image, installs the tutorial's packages with pip into a virtual environment using Ubuntu's Python, and takes the tutorial name as the `ACH_TUTORIAL` build argument. Each tutorial provides:
-  * `brev/requirements.txt` (required): the tutorial's Python packages. `-r` lines resolve relative to `brev/`, so a tutorial can point at a lock file elsewhere in its directory.
-  * `brev/install.bash` (optional): extra build steps, run as root after the Python packages are installed.
-* **The stdpar tutorial** needs the NVIDIA HPC SDK compilers, so it has its own Dockerfile, [`tutorials/stdpar/brev/dockerfile`](tutorials/stdpar/brev/dockerfile), based on the HPC SDK image.
+* **Python tutorials** share one Dockerfile, [`docker/dockerfile`](docker/dockerfile). It starts from the CUDA devel image, installs the tutorial's packages with pip into a virtual environment using Ubuntu's Python, and takes the tutorial name as the `ACH_TUTORIAL` build argument. Each tutorial provides:
+  * `docker/requirements.txt` (required): the tutorial's Python packages. `-r` lines resolve relative to `docker/`, so a tutorial can point at a lock file elsewhere in its directory.
+  * `docker/install.bash` (optional): extra build steps, run as root after the Python packages are installed.
+* **The stdpar tutorial** needs the NVIDIA HPC SDK compilers, so it has its own Dockerfile, [`tutorials/stdpar/docker/dockerfile`](tutorials/stdpar/docker/dockerfile), based on the HPC SDK image.
 
-Each tutorial's `brev/docker-compose.yml` points at its Dockerfile, so `docker compose -f tutorials/<tutorial>/brev/docker-compose.yml up --build` builds and starts it.
+Each tutorial's `docker/docker-compose.yml` points at its Dockerfile, so `docker compose -f tutorials/<tutorial>/docker/docker-compose.yml up --build` builds and starts it.
 
 ## Development Scripts
 
-The `brev/` directory contains scripts for building, running, and testing tutorial Docker containers locally, as well as validation and CI helper scripts.
+The `docker/` directory contains scripts for building, running, and testing tutorial Docker containers locally, as well as validation and CI helper scripts.
 
-### Docker Workflow (`brev/dev-*`)
+### Docker Workflow (`docker/dev-*`)
 
 These are the primary scripts for local development. They all accept a tutorial name (the directory name under `tutorials/`, e.g. `accelerated-python`) and manage Docker Compose services for that tutorial.
 
-* **`brev/dev-build.bash [<tutorial-name>]`** - Builds Docker images. If a tutorial name is provided, builds only that tutorial; if omitted, builds all tutorials discovered by `discover-tutorials.bash`.
+* **`docker/dev-build.bash [<tutorial-name>]`** - Builds Docker images. If a tutorial name is provided, builds only that tutorial; if omitted, builds all tutorials discovered by `discover-tutorials.bash`.
 
-* **`brev/dev-start.bash [--mount|--no-mount] <tutorial-name>`** - Starts containers for a tutorial. By default (`--mount`), bind-mounts the local repository into the containers at `/accelerated-computing-hub` so edits are reflected immediately. Use `--no-mount` to run from the image content only. Rebinds ports to `0.0.0.0` for local access.
+* **`docker/dev-start.bash [--mount|--no-mount] <tutorial-name>`** - Starts containers for a tutorial. By default (`--mount`), bind-mounts the local repository into the containers at `/accelerated-computing-hub` so edits are reflected immediately. Use `--no-mount` to run from the image content only. Rebinds ports to `0.0.0.0` for local access.
 
-* **`brev/dev-stop.bash <tutorial-name>`** - Stops and tears down containers for a tutorial.
+* **`docker/dev-stop.bash <tutorial-name>`** - Stops and tears down containers for a tutorial.
 
-* **`brev/dev-shell.bash [--mount|--no-mount] <tutorial-name|docker-compose-file> <service-name>`** - Opens an interactive bash shell inside a running container. Accepts either a tutorial name or a path to a `docker-compose.yml` file, plus the service name (e.g. `base`, `jupyter`, `nsys`, `ncu`).
+* **`docker/dev-shell.bash [--mount|--no-mount] <tutorial-name|docker-compose-file> <service-name>`** - Opens an interactive bash shell inside a running container. Accepts either a tutorial name or a path to a `docker-compose.yml` file, plus the service name (e.g. `base`, `jupyter`, `nsys`, `ncu`).
 
-* **`brev/dev-test.bash [--mount|--no-mount] <tutorial-name|docker-compose-file> [test-args...]`** - Runs the tutorial's test suite inside Docker. Defaults to `--no-mount` (tests the image as-built). Extra arguments are forwarded to the tutorial's `test.bash` script (e.g. `brev/dev-test.bash accelerated-python test/test_notebooks.py -k "03"`).
+* **`docker/dev-test.bash [--mount|--no-mount] <tutorial-name|docker-compose-file> [test-args...]`** - Runs the tutorial's test suite inside Docker. Defaults to `--no-mount` (tests the image as-built). Extra arguments are forwarded to the tutorial's `test.bash` script (e.g. `docker/dev-test.bash accelerated-python test/test_notebooks.py -k "03"`).
 
-### Validation Scripts (`brev/test-*`)
+### Validation Scripts (`docker/test-*`)
 
 These scripts are used by the pre-commit hooks and CI. You can also run them directly.
 
-* **`brev/test-notebook-format.py [<tutorial-name>] [--fix]`** - Checks that notebooks are in canonical format (1-space indentation, sorted keys, standard metadata, clean outputs for non-SOLUTION notebooks). Pass `--fix` to auto-rewrite notebooks to canonical form.
+* **`docker/test-notebook-format.py [<tutorial-name>] [--fix]`** - Checks that notebooks are in canonical format (1-space indentation, sorted keys, standard metadata, clean outputs for non-SOLUTION notebooks). Pass `--fix` to auto-rewrite notebooks to canonical form.
 
-* **`brev/test-git-lfs.bash [<path>...]`** - Verifies that binary files (images, PDFs, presentations) are properly tracked by Git LFS and that no `.gitattributes` files exist in subdirectories.
+* **`docker/test-git-lfs.bash [<path>...]`** - Verifies that binary files (images, PDFs, presentations) are properly tracked by Git LFS and that no `.gitattributes` files exist in subdirectories.
 
-* **`brev/test-docker-compose.bash [--mount|--no-mount] <tutorial-name|docker-compose-file> [test-args...]`** - The lower-level test runner that `dev-test.bash` delegates to. Starts containers, checks for restart loops, runs the tutorial's tests, verifies restart behavior, and tears everything down.
+* **`docker/test-docker-compose.bash [--mount|--no-mount] <tutorial-name|docker-compose-file> [test-args...]`** - The lower-level test runner that `dev-test.bash` delegates to. Starts containers, checks for restart loops, runs the tutorial's tests, verifies restart behavior, and tears everything down.
 
 ### Other Utility Scripts
 
-* **`brev/discover-tutorials.bash`** - Prints one line per tutorial directory (relative to repo root) for every tutorial that has a `brev/docker-compose.yml`. Used by `dev-build.bash` and CI.
+* **`docker/discover-tutorials.bash`** - Prints one line per tutorial directory (relative to repo root) for every tutorial that has a `docker/docker-compose.yml`. Used by `dev-build.bash` and CI.
 
 ## Continuous Integration
 
@@ -87,7 +87,7 @@ Two GitHub Actions workflows run on this repository:
 
 | Workflow | Runs on | What it does |
 |---|---|---|
-| [`tutorials.yml`](.github/workflows/tutorials.yml) | Pushes to `main` and `pull-request/<number>` | For each tutorial whose files changed (or every tutorial, when shared files under `brev/` change), builds the image, runs the tutorial's tests on a GPU runner with `brev/test-docker-compose.bash`, and, on `main`, publishes the image to `ghcr.io/<owner>/<tutorial>-tutorial` once the tests pass. |
+| [`tutorials.yml`](.github/workflows/tutorials.yml) | Pushes to `main` and `pull-request/<number>` | For each tutorial whose files changed (or every tutorial, when shared files under `docker/` change), builds the image, runs the tutorial's tests on a GPU runner with `docker/test-docker-compose.bash`, and, on `main`, publishes the image to `ghcr.io/<owner>/<tutorial>-tutorial` once the tests pass. |
 | [`checks.yml`](.github/workflows/checks.yml) | Pull requests and pushes to `main` | Runs the notebook format and Git LFS checks on a GitHub-hosted runner. |
 
 ## Pre-Commit Hooks
@@ -106,7 +106,7 @@ The following hooks are configured:
 | **`notebook-format`** | pre-commit | `*.ipynb` | Validates that notebooks are in canonical format (consistent cell metadata, output ordering, etc.) to prevent noisy diffs from editor reformatting. |
 | **`git-lfs`** | pre-commit | Binary files (`*.pptx`, `*.pdf`, `*.png`, `*.jpg`, etc.) | Ensures binary files are tracked by Git LFS rather than committed directly to the repository. |
 
-If a hook fails, fix the issue and re-stage your changes before committing again. `python3 brev/test-notebook-format.py --fix` rewrites notebooks into canonical format.
+If a hook fails, fix the issue and re-stage your changes before committing again. `python3 docker/test-notebook-format.py --fix` rewrites notebooks into canonical format.
 
 ## Branches
 
@@ -155,9 +155,8 @@ Use the most specific category path that accurately describes what was changed. 
 |---|---|
 | **`Tutorials/<tutorial>`** | Changes to tutorial content (notebooks, scripts, solutions). Use subcategories to identify the specific module when applicable, e.g. `Tutorials/Accelerated Python/Memory Spaces`, `Tutorials/Accelerated Python/CUDA Tile`. |
 | **`Docker`** | Changes to Dockerfiles, Docker Compose files, entrypoint scripts, or container configuration that affect multiple tutorials or the shared Docker infrastructure. |
-| **`Brev`** | Changes specific to the Brev deployment configuration or Brev-specific entrypoint behavior. Use subcategories for specific services, e.g. `Brev/Nsight`, `Brev/Entrypoint`. |
 | **`CI`** | Changes to GitHub Actions workflows, CI scripts, or CI configuration. |
-| **`Scripts`** | Changes to development and utility scripts (e.g. `brev/dev-build.bash`). |
+| **`Scripts`** | Changes to development and utility scripts (e.g. `docker/dev-build.bash`). |
 | **`Tests`** | Changes to test infrastructure, test scripts, or test validation. |
 | **`Nsight`** | Changes to Nsight Systems/Compute integration, Nsight Streamer, or profiling configuration. |
 | **`Docs`** | Changes to documentation files (READMEs, contributing guides, link fixes). |
@@ -251,7 +250,7 @@ Please use the guidelines detailed in the [notebook template](docs/notebook_temp
 
 ## Tutorial Architecture
 
-For details on the tutorial directory structure, Docker Compose services, notebook conventions (exercise vs. solution notebooks), tests, and deployment infrastructure, see the [Brev Launchable Architecture](docs/brev_launchable_architecture.md) documentation.
+For details on the tutorial directory structure, Docker Compose services, notebook conventions (exercise vs. solution notebooks), tests, and deployment infrastructure, see the [Tutorial Architecture](docs/tutorial_architecture.md) documentation.
 
 ## Reviewing PRs From Forks
 

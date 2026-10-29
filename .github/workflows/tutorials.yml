@@ -37,7 +37,7 @@ jobs:
           BEFORE: ${{ github.event.before }}
         run: |
           set -euo pipefail
-          all=$(brev/discover-tutorials.bash | xargs -n1 basename)
+          all=$(docker/discover-tutorials.bash | xargs -n1 basename)
 
           # Compare main pushes with the previous main, and PR branches with
           # where they left main. Manual runs and unknown bases build all.
@@ -55,7 +55,7 @@ jobs:
           else
             changed=$(git diff --name-only "${base}" HEAD)
             # Shared build and test files affect every tutorial.
-            if grep -qE '^(brev/|\.dockerignore$|\.github/workflows/tutorials\.yml$)' <<< "${changed}"; then
+            if grep -qE '^(docker/|\.dockerignore$|\.github/workflows/tutorials\.yml$)' <<< "${changed}"; then
               selected=${all}
             else
               selected=$(comm -12 \
@@ -82,7 +82,7 @@ jobs:
       matrix:
         tutorial: ${{ fromJson(needs.changes.outputs.tutorials) }}
     env:
-      TUTORIAL_COMPOSE: tutorials/${{ matrix.tutorial }}/brev/docker-compose.yml
+      TUTORIAL_COMPOSE: tutorials/${{ matrix.tutorial }}/docker/docker-compose.yml
       BUILDKIT_PROGRESS: plain
       DOCKER_CLI_HINTS: false
     steps:
@@ -107,7 +107,7 @@ jobs:
           sudo sysctl -w kernel.kptr_restrict=0 || true
 
       - name: Test
-        run: brev/test-docker-compose.bash "${TUTORIAL_COMPOSE}"
+        run: docker/test-docker-compose.bash "${TUTORIAL_COMPOSE}"
 
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main'

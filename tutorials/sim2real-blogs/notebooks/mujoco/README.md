@@ -13,7 +13,7 @@ Companion code for *[How to Use NVIDIA Warp and MJWarp to Accelerate Robotics Si
 | [MuJoCo Warp](part2/03__mujoco_warp.ipynb) | The same task on one selected GPU |
 | [CPU/GPU benchmark](part2/04__cpu_gpu_benchmark.ipynb) | Preflight by default; full task measurements are opt-in |
 
-This update intentionally replaces the earlier Hub 3.12/1.17 package line with the measured Article 2 stack: **MuJoCo 3.8.0, MuJoCo Warp 3.8.0.3 and Warp 1.15.0**. Both local setup and the Brev image install the unchanged source hash lock. Notebook/UI tools are separate container additions. These imported workstation results are not new Hub, container, Brev or Colab measurements.
+This update intentionally replaces the earlier Hub 3.12/1.17 package line with the measured Article 2 stack: **MuJoCo 3.8.0, MuJoCo Warp 3.8.0.3 and Warp 1.15.0**. Both local setup and the container image install the unchanged source hash lock. Notebook/UI tools are separate container additions. These imported workstation results are not new Hub, container or Colab measurements.
 
 The [migration record](MIGRATION_MANIFEST.json) maps source files to this layout. [Archived evidence](benchmark-results/2026-10-09-validated-box-gpu0/README.md) retains its original paths, links and hashes. Use the current links here to run this relocated tutorial.
 
@@ -150,7 +150,7 @@ The [earlier October 9 box study](benchmark-results/2026-10-09-box-sweep-rtx-pro
 
 The [October 8 stacking study](benchmark-results/2026-10-08-full-sweep-rtx-pro-6000/README.md) remains historical stacking evidence, available through the explicit legacy `--task stack` protocol.
 
-The notebook starts with setup and preflight only. Review memory, GPU selection and CPU allocation before enabling measurements. The guide includes isolated Colab setup and an existing Brev VM recipe. Article 2 keeps its own Python 3.12 dependency lock, separate from Newton in Article 3.
+The notebook starts with setup and preflight only. Review memory, GPU selection and CPU allocation before enabling measurements. The guide includes isolated Colab setup and an existing remote VM recipe. Article 2 keeps its own Python 3.12 dependency lock, separate from Newton in Article 3.
 
 Run the notebook contract check with the Article 2 interpreter:
 

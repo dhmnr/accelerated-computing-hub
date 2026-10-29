@@ -1,0 +1,5 @@
+# Developer dependencies for working on Accelerated Computing Hub.
+# Install with: uv pip install -r docker/requirements-dev.txt
+
+pre-commit
+nbformat

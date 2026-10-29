@@ -33,21 +33,21 @@ The pinned stack uses Newton 1.6.0, Warp 1.17.0, MuJoCo/MuJoCo Warp 3.12.0, Open
 
 Notebooks 02 and 04 run the full 40-second box task on CPU for both robots; CUDA is opt-in. Notebook 05 defaults to `RUN_BENCHMARK = False` and runs preflight only. Notebook 03 is the separate, slower coupled-material lesson: historical CPU rollouts took approximately 26–29 minutes per robot on the recorded workstation. Long cells capture subprocess output until completion. See the [setup and task guide](notebooks/newton/README.md) for device selection, cache remedies, rendering and student/reference commands.
 
-## Docker and Brev
+## Docker
 
-The [Compose configuration](brev/docker-compose.yml) supplies the repository's standard `base` and `jupyter` services. It installs the same hash-locked Python 3.12 environment and sets the OpenUSD launch variable. The CUDA 13.1 image needs a compatible host driver and NVIDIA Container Toolkit; the services expose JupyterLab on port 8888. Compose reserves 4 GiB of shared memory for full CPU histories and independent validation; this is separate from GPU memory.
+The [Compose configuration](docker/docker-compose.yml) supplies the repository's standard `base` and `jupyter` services. It installs the same hash-locked Python 3.12 environment and sets the OpenUSD launch variable. The CUDA 13.1 image needs a compatible host driver and NVIDIA Container Toolkit; the services expose JupyterLab on port 8888. Compose reserves 4 GiB of shared memory for full CPU histories and independent validation; this is separate from GPU memory.
 
 From the Hub repository root:
 
 ```bash
-brev/dev-build.bash newton
-brev/dev-start.bash newton
-brev/dev-test.bash newton
+docker/dev-build.bash newton
+docker/dev-start.bash newton
+docker/dev-test.bash newton
 ```
 
-The default test entrypoint runs the regression suite and notebooks 01, 02, 04 and the preflight-only 05. To include the long coupled notebook 03, set `NEWTON_NOTEBOOKS_INCLUDE_FINAL=1` before starting Compose, or run `NEWTON_NOTEBOOKS_INCLUDE_FINAL=1 bash brev/test.bash` inside this tutorial's environment. `brev/test.bash 01` through `05` select individual notebooks; `03` explicitly opts into the coupled task; standard pytest paths and flags are also accepted.
+The default test entrypoint runs the regression suite and notebooks 01, 02, 04 and the preflight-only 05. To include the long coupled notebook 03, set `NEWTON_NOTEBOOKS_INCLUDE_FINAL=1` before starting Compose, or run `NEWTON_NOTEBOOKS_INCLUDE_FINAL=1 bash docker/test.bash` inside this tutorial's environment. `docker/test.bash 01` through `05` select individual notebooks; `03` explicitly opts into the coupled task; standard pytest paths and flags are also accepted.
 
-The updated image passed 274 regression tests across the initial suite and corrected stale-test rerun, three actual notebook checks, and complete CUDA box tasks for both robots. The [validation record](hub-validation/2026-10-10/README.md) retains the original failure and both snapshots. A live Brev deployment and Colab have not been validated. The original full physics validation and the relocation/container checks are distinguished in [VERIFICATION.md](notebooks/newton/VERIFICATION.md).
+The updated image passed 274 regression tests across the initial suite and corrected stale-test rerun, three actual notebook checks, and complete CUDA box tasks for both robots. The [validation record](hub-validation/2026-10-10/README.md) retains the original failure and both snapshots. A cloud deployment and Colab have not been validated. The original full physics validation and the relocation/container checks are distinguished in [VERIFICATION.md](notebooks/newton/VERIFICATION.md).
 
 ## Matched CPU/GPU comparison
 

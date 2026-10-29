@@ -2,7 +2,7 @@
 
 ## Agenda
 - Deployment
-  - NVIDIA Brev
+  - Launching a cloud GPU VM
   - GPU Software Environment Fundamentals
   - Python packages that use CUDA
   - Monitoring/debugging tools
@@ -11,43 +11,23 @@
 ## Deployment
 
 This tutorial will discuss how to get your own GPUs on the cloud in more general terms. In order to dig into some of the
-things we will be learning, we will launch a VM through the [NVIDIA Brev](https://brev.nvidia.com) portal.
+things we will be learning, we will launch a GPU VM from a cloud provider.
 
-### Getting set up with Brev
+### Launching a GPU VM
 
-- Sign in to or register an account at https://brev.nvidia.com
-- Ensure you are a member of an organization
-  - One should be created for you when you register, but if not it will say "undefined" in the top right
-  - If you don't have one you can create a new one and give it a name
-- Apply credits to your organization
-  - Navigate to Billing
-  - Select "Redeem Code" <UPDATE IN HERE>
-
-<img width="1398" height="594" alt="Screenshot 2025-08-13 at 15 16 09" src="images/brev-setup.png" />
-
-#### Launching a Brev VM
-
-- Under "GPUs" select "New Instance"
+- Use any cloud provider that offers NVIDIA GPU VMs with Ubuntu and the NVIDIA driver preinstalled
 - Choose a GPU type that costs <$1/hour (e.g an L4)
-- Choose GCP as the provider
-  - There is a known issue with running this material on AWS instances, other providers are untested
-- Give your VM a name
-- Press Deploy
-- Wait for the VM to be "Running" and the software environment to finish "Building"
+  - This material is known to work on GCP. There is a known issue with running it on AWS instances; other providers are untested
+- Give your VM a name and deploy it
+- Wait for the VM to be running
 
 #### Connecting to your VM
 
-Once your VM is deployed, follow the Brev access instructions provided for your instance. The connection instructions will vary depending on your operating system. For example, on macOS you would:
+Once your VM is running, connect to it over SSH using the address and user name your provider gives you, for example:
 
-- Install the `brev` CLI
-  - `brew install brevdev/homebrew-brev/brev`
-- Login to your account (copy from access page)
-  - `brev login --token ****`
-- Connect via SSH
-  - `brev ls` to list your VMs
-  - `brev shell <your vm name>` to connect via SSH
-
-For Linux and Windows instructions check the [brev-cli install documentation](https://docs.nvidia.com/brev/latest/cli/getting-started#installation)
+```console
+$ ssh ubuntu@<your-vm-address>
+```
 
 ### Exploring our GPU Software Environment
 
@@ -163,7 +143,7 @@ If we want to install our packages with `pip` we need to install the CUDA core l
 
 Make sure to select the appropriate package that matches your system architecture (x86_64, ARM64, etc.) and
 your specific OS distribution and version. The example below shows the installation for Ubuntu 22.04 on
-`x86_64` (what we have in our brev instance). For other distributions and architectures, consult the [NVIDIA
+`x86_64` (what we have on our VM). For other distributions and architectures, consult the [NVIDIA
 CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#ubuntu).
 
 ```bash
@@ -370,7 +350,7 @@ If you are a fan of Jupyter Lab you can view metrics directly in the interface w
 <img width="1834" height="1010" alt="image" src="images/nvdashboard.png" />
 
 > [!NOTE]
-> Our Brev VM has Jupyter running for us in the system python environment via systemd. We can install NVDashboard in here but we need to ensure we are installing it into the right Python.
+> These steps assume your VM image runs Jupyter in the system Python environment via systemd, as many cloud GPU images do. We can install NVDashboard in there but we need to ensure we are installing it into the right Python.
 
 ```bash
 # Ensure we are using the base Python
@@ -386,7 +366,7 @@ pip install jupyterlab_nvdashboard
 sudo systemctl restart jupyter
 ```
 
-Head back to the Brev dashboard in your browser and click the "Open Notebook" button in the top right corner. You will be asked to authenticate with Brev again to access your notebook.
+Open Jupyter in your browser again, using the URL or port forward your provider gives you.
 
 > [!NOTE]
 > We've created a few additional Python environments with `uv` and `conda`. As a stretch exercise see if you can use `ipykernel` to register them in Jupyter.
@@ -507,7 +487,7 @@ Further reading:
 ### How do I do all this on "foo" platform?
 Now that we've experimented with all of these tools, libraries and debuggers on a Ubuntu VM the next thing most folks need to figure out is how to apply this to your world. It's likely that you have some opinionated set of hardware/software/platform that you need to use. Perhaps your employer provides you with access to [Databricks](https://docs.rapids.ai/deployment/stable/platforms/databricks/), [Coiled](https://docs.rapids.ai/deployment/stable/platforms/coiled/) or [Snowflake](https://docs.rapids.ai/deployment/stable/platforms/snowflake/). Or maybe you have cloud access and you use services such as [AWS SageMaker](https://docs.rapids.ai/deployment/stable/cloud/aws/sagemaker/), [Azure Machine Learning](https://docs.rapids.ai/deployment/stable/cloud/azure/azureml/) or [Google Cloud Vertex AI](https://docs.rapids.ai/deployment/stable/cloud/gcp/vertex-ai/). Or maybe you have an existing machine or cluster somewhere.
 
-However you get access to GPUs it inevitably falls to you to close the gap between the software provided and the software you need. In our Brev example we got Ubuntu with the NVIDIA driver, but nothing else. On platforms like Snowflake you will get some version of CUDA Toolkit and a few libraries out of the box, but you'll need to figure out how to add the additional things you need.
+However you get access to GPUs it inevitably falls to you to close the gap between the software provided and the software you need. In our example VM we got Ubuntu with the NVIDIA driver, but nothing else. On platforms like Snowflake you will get some version of CUDA Toolkit and a few libraries out of the box, but you'll need to figure out how to add the additional things you need.
 
 In [RAPIDS we endeavour to document the most commonly used platforms](https://docs.rapids.ai/deployment/stable/) and how to get from their out of the box offering to a fully functional RAPIDS environment.
 

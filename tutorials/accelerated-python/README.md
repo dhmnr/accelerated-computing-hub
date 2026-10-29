@@ -2,17 +2,16 @@
 
 This modular tutorial contains content on all things related to accelerated Python:
 
-- [Notebooks](./notebooks) containing lessons and exercises organized by topic, including CUDA Tile. They are intended for self-paced or instructor-led learning and can be run on [NVIDIA Brev](https://brev.nvidia.com) or [Google Colab](https://colab.research.google.com).
+- [Notebooks](./notebooks) containing lessons and exercises organized by topic, including CUDA Tile. They are intended for self-paced or instructor-led learning and can be run on locally with Docker, on a cloud GPU instance, or on [Google Colab](https://colab.research.google.com).
 - [Slides](./slides) containing the lecture content for the lessons.
 - [Syllabi](./notebooks/syllabi) that select a subset of the notebooks for a particular learning objective.
-- [Docker Images](https://github.com/NVIDIA/accelerated-computing-hub/pkgs/container/accelerated-python-tutorial) and [Docker Compose files](./brev/docker-compose.yml) for creating Brev Launchables or running locally.
+- [Docker Images](https://github.com/NVIDIA/accelerated-computing-hub/pkgs/container/accelerated-python-tutorial) and [Docker Compose files](./docker/docker-compose.yml) for running locally or on a cloud GPU instance.
 
-Brev Launchables of this tutorial should use:
+This tutorial needs:
 - L40S, L4, or T4 instances (for non-distributed notebooks other than CUDA Tile).
 - A10G or newer Ampere, Ada, or Blackwell instances for CUDA Tile notebooks.
 - 4xL4 or 2xL4 instances (for distributed notebooks).
 - A host driver with CUDA 13 support.
-- Crusoe or any other provider with Flexible Ports.
 
 ## Syllabi
 

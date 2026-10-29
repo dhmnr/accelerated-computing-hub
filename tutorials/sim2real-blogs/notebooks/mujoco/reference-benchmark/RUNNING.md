@@ -38,10 +38,10 @@ The primary timer includes reset, control replay, integration, state-history rec
 
 Publish the hardware inventory, run plans, raw JSON, endpoint NPZ files, logs and collector output with any figure. The wrapper records CPU, RAM, GPU identity and driver information. Review background utilization separately when interpreting measurements.
 
-## Colab and Brev
+## Colab and remote GPU VMs
 
 In Colab, select a GPU runtime, copy this folder into the session, and use notebook shell cells to run one pinned environment's commands. Start with `--counts 1,16`; let the wrapper select the available CPU count, and save the result folder before ending the runtime. GPU types and limits vary according to [Colab's documentation](https://research.google.com/colaboratory/faq.html). This recipe has not yet been validated on Colab or a lower-end GPU.
 
-For Brev, create and connect to a GPU instance using the [Brev quickstart](https://docs.nvidia.com/brev/getting-started/quickstart), then run the same Linux commands. Begin with the bounded counts and retain the generated hardware inventory. No Brev deployment or specific GPU configuration is claimed as validated here.
+On a remote Linux GPU VM, run the same Linux commands. Begin with the bounded counts and retain the generated hardware inventory. No cloud deployment or specific GPU configuration is claimed as validated here.
 
 See `ASSET_ORIGINS.md` before redistributing assets. The fetcher pins upstream commits and file hashes; assets are downloaded into a cache instead of being bundled in this code folder.

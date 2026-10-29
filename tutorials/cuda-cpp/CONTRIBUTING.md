@@ -354,8 +354,7 @@ When creating exercises, you can use these utilities or add new ones.
 The course supports multiple execution environments:
 
 1. **Google Colab**: Primary target for zero-setup experience
-2. **NVIDIA Brev**: Cloud GPU development environment
-3. **Local Docker**: For developers with local GPU access
+2. **Docker**: Locally or on a cloud GPU instance
 
 **Colab compatibility**: Each notebook should include a setup cell that downloads necessary source files:
 ```python
@@ -366,7 +365,6 @@ if os.getenv("COLAB_RELEASE_TAG"):  # If running in Google Colab:
     !wget https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/refs/heads/main/tutorials/cuda-cpp/notebooks/XX.YY-Topic/Sources/ach.h -nv -O Sources/ach.h
 ```
 
-Refer to `docs/` to learn more about how to use Brev with this course.
 
 ### Testing
 

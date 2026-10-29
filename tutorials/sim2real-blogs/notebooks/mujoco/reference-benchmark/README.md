@@ -11,7 +11,7 @@ The retained workstation sweep covers **1, 16, 32, 64, 128, 256, 512, 1024 and 2
 
 Speedup is CPU elapsed time divided by GPU elapsed time at the **same** batch size. The GPU was slower through 512 environments in this run; the medians were near parity at 1024. Five repeats of a fixed tape do not establish a confidence interval or randomized-task robustness. The full tables include every requested size and per-episode timings.
 
-The shared workstation used an AMD Ryzen Threadripper PRO 9985WX, up to 32 native C++ rollout threads, and one NVIDIA RTX PRO 6000 Blackwell Workstation Edition (`cuda:1`). [Hardware evidence](audit/hardware.json) links the retained inventory. No utilization trace was recorded during this reference sweep, and exclusive use of the machine is not claimed. Developer GPUs, Colab and Brev remain unvalidated.
+The shared workstation used an AMD Ryzen Threadripper PRO 9985WX, up to 32 native C++ rollout threads, and one NVIDIA RTX PRO 6000 Blackwell Workstation Edition (`cuda:1`). [Hardware evidence](audit/hardware.json) links the retained inventory. No utilization trace was recorded during this reference sweep, and exclusive use of the machine is not claimed. Developer GPUs, Colab and cloud VMs remain unvalidated.
 
 ## Inspect the results
 
@@ -24,7 +24,7 @@ The simulation timer includes reset, replay, integration, complete state-history
 
 ## Reproduce
 
-Follow [RUNNING.md](RUNNING.md) for pinned dependencies, complete sweeps and bounded Colab/Brev starting instructions. It uses only paths relative to this folder or an explicit asset cache. Use fresh output directories to preserve previous runs. The asset fetcher downloads immutable, hashed upstream files; **meshes and fetched assets are not bundled here**. Read [ASSET_ORIGINS.md](ASSET_ORIGINS.md) before redistributing assets: upstream licenses differ, and the specific pot/lid terms remain unresolved.
+Follow [RUNNING.md](RUNNING.md) for pinned dependencies, complete sweeps and bounded Colab/remote VM starting instructions. It uses only paths relative to this folder or an explicit asset cache. Use fresh output directories to preserve previous runs. The asset fetcher downloads immutable, hashed upstream files; **meshes and fetched assets are not bundled here**. Read [ASSET_ORIGINS.md](ASSET_ORIGINS.md) before redistributing assets: upstream licenses differ, and the specific pot/lid terms remain unresolved.
 
 To independently collect the retained evidence from this folder after installing the pinned requirements:
 

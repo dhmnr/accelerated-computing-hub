@@ -7,12 +7,11 @@ Shallow Water Equations case study.
 - [Notebooks](./notebooks) containing lessons and exercises organized by topic. The fundamentals and kernel lessons are copies of the matching [Accelerated Python](../accelerated-python/README.md) lessons.
 - [Slides](./slides) containing the lecture content for the lessons.
 - [Syllabi](./notebooks/syllabi) that select a subset of the notebooks for a particular learning objective.
-- [Docker Compose file](./brev/docker-compose.yml) for creating Brev Launchables or running locally.
+- [Docker Compose file](./docker/docker-compose.yml) for running locally or on a cloud GPU instance.
 
-Brev Launchables of this tutorial should use:
+This tutorial needs:
 - L40S, L4, or T4 instances.
 - A host driver with CUDA 13 support.
-- Crusoe or any other provider with Flexible Ports.
 
 ## Syllabi
 

@@ -11,7 +11,7 @@ The published image is public and requires no registry credentials:
 ghcr.io/nvidia/pyhpc-tutorial:main-latest
 ```
 
-Wait for the main branch's **Build and Push Brev Tutorial Docker Images**
+Wait for the main branch's **Tutorials**
 workflow to succeed before starting a Daint run.
 
 ## Use the published image on Daint
@@ -25,7 +25,7 @@ export ACH_REPO="$(git rev-parse --show-toplevel)"
 export ACH_BRANCH="main"
 export CSCS_EDF="${SCRATCH}/pyhpc-${ACH_BRANCH//\//-}.toml"
 curl -fsSL \
-  "https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/generated/${ACH_BRANCH}/tutorials/pyhpc/brev/cscs.toml" \
+  "https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/generated/${ACH_BRANCH}/tutorials/pyhpc/docker/cscs.toml" \
   --output "${CSCS_EDF}"
 ```
 
@@ -44,7 +44,7 @@ srun -A "${CSCS_ACCOUNT}" -p normal -t 00:10:00 -N1 -n1 -c4 \
 For a reproducible run, generate a no-mount EDF pinned to the CI commit tag:
 
 ```bash
-./brev/generate-cscs-edf.bash \
+./docker/generate-cscs-edf.bash \
   --image "ghcr.io/nvidia/pyhpc-tutorial:main-latest" \
   --tag "main-git-<seven-character-git-sha>" \
   --output "${SCRATCH}/pyhpc-cscs-pinned.toml" \
@@ -96,7 +96,7 @@ compatible sibling for both the course materials and runtime scripts.
 From the workstation, start and connect with one command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/pyhpc/brev/cscs-run-tutorial.bash | bash
+curl -fsSL https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/pyhpc/docker/cscs-run-tutorial.bash | bash
 ```
 
 The helper downloads the three small helper scripts to a temporary directory;
@@ -143,7 +143,7 @@ To launch on a Daint login node without the end-to-end helper, copy or download
 After it reports a node, run the workstation-side connection helper:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/pyhpc/brev/cscs-connect-tutorial.bash
+curl -fsSLO https://raw.githubusercontent.com/NVIDIA/accelerated-computing-hub/main/tutorials/pyhpc/docker/cscs-connect-tutorial.bash
 chmod +x cscs-connect-tutorial.bash
 ./cscs-connect-tutorial.bash nidXXXXXX
 ```
@@ -197,7 +197,7 @@ resources.
 cd "${ACH_REPO}"
 CSCS_ACCOUNT="${CSCS_ACCOUNT}" \
 CSCS_EDF="${CSCS_EDF}" \
-  tutorials/pyhpc/brev/test-cscs.bash
+  tutorials/pyhpc/docker/test-cscs.bash
 ```
 
 The driver runs:
@@ -222,7 +222,7 @@ for test_file in test_packages.py; do
   srun -A "${CSCS_ACCOUNT}" -p normal -t 00:20:00 -N1 -n1 -c32 --gpus=1 \
     --environment="${CSCS_EDF}" \
     env ACH_RUN_TESTS=1 ACH_TEST_ARGS="test/${test_file}" \
-    /accelerated-computing-hub/brev/entrypoint.bash base
+    /accelerated-computing-hub/docker/entrypoint.bash base
 done
 ```
 
@@ -245,7 +245,7 @@ for notebook in 06 40 41; do
     --environment="${CSCS_EDF}" \
     env ACH_RUN_TESTS=1 \
     ACH_TEST_ARGS="test/test_notebooks.py -k=${notebook}" \
-    /accelerated-computing-hub/brev/entrypoint.bash base
+    /accelerated-computing-hub/docker/entrypoint.bash base
 done
 ```
 

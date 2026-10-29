@@ -1,5 +1,4 @@
 .git
-.git-checkout-done
 .env
 .venv
 .ruff_cache

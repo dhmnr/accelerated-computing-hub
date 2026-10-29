@@ -34,8 +34,8 @@ With the tutorial's Python 3.12 locked environment active:
 
 ```bash
 python -m pytest tutorials/sim2real-blogs/test -v
-python brev/test-notebook-format.py sim2real-blogs
-bash tutorials/sim2real-blogs/brev/test.bash
+python docker/test-notebook-format.py sim2real-blogs
+bash tutorials/sim2real-blogs/docker/test.bash
 ```
 
 The full suite includes real task/recording checks and may download pinned
@@ -46,4 +46,4 @@ in an actual kernel; measurements remain disabled. The optional CPU viewer
 integration check uses `RUN_ARTICLE2_VIEWER_CPU_TESTS=1` and is not a GUI test.
 `test/test_article2_viewer_x11.py` is a real-window GUI test: it runs the lesson scripts under an X server (Xvfb is enough) and sends real key presses, a window-manager close and Ctrl+C. It needs `DISPLAY` and `xdotool` and skips cleanly without them, so the container suite skips it. `test/test_article2_ctrl_c.py` checks the Ctrl+C exit contract with real signals and needs no display.
 
-The [fresh Hub container validation](hub-validation/2026-10-10/README.md) built the updated image and passed **151 tests with one optional viewer-integration skip**, including both robots on CPU/GPU and the real-kernel benchmark preflight. Its initial collection failure and corrected test-only rerun are preserved. Compose lifecycle, live Brev/Colab, lower-end GPU and macOS GUI validation remain unverified.
+The [fresh Hub container validation](hub-validation/2026-10-10/README.md) built the updated image and passed **151 tests with one optional viewer-integration skip**, including both robots on CPU/GPU and the real-kernel benchmark preflight. Its initial collection failure and corrected test-only rerun are preserved. Compose lifecycle, live cloud/Colab, lower-end GPU and macOS GUI validation remain unverified.
